@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosInstance = axios.create({
-  baseURL: "http://shop-management-api.test/api",
+  baseURL: process.env.API_URL,
   timeout: 6000,
   headers: {
     "Content-Type": "application/json",
