@@ -25,6 +25,7 @@ import { Category } from "../types";
 import { createCategorySchema } from "../schemas";
 import { useUpdateCategory } from "../api/use-update-category";
 import { useStoreId } from "@/hooks/use-store-id";
+import { AxiosError } from "axios";
 
 interface UpdateCategoryFormProps {
   onClose: () => void;
@@ -39,7 +40,7 @@ export const UpdateCategoryForm = ({
 
   const { mutateAsync, isPending } = useUpdateCategory();
 
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -70,10 +71,14 @@ export const UpdateCategoryForm = ({
     };
     try {
       setError(null);
-      const res = await mutateAsync(finalValues);
+      await mutateAsync(finalValues);
       onClose();
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 

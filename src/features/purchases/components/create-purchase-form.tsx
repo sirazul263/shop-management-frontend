@@ -1,7 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { any, z } from "zod";
+import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { DottedSeparator } from "@/components/dotted-separator";
 import {
@@ -38,19 +38,25 @@ import { createPurchaseSchema } from "../schemas";
 import { useCreatePurchase } from "../api/use-create-purchase";
 import { Supplier } from "@/features/suppliers/types";
 import { Product } from "@/features/products/types";
-import Select2 from "react-select";
+import Select2, { MultiValue } from "react-select";
 
-import { RiAddBoxFill, RiAddCircleFill } from "react-icons/ri";
+import { RiAddCircleFill } from "react-icons/ri";
 import { useCreateSupplierModal } from "@/features/suppliers/hooks/use-create-supplier-modal";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { DatePicker } from "@/components/date-picker";
 import { useStoreId } from "@/hooks/use-store-id";
+import { AxiosError } from "axios";
 
 interface CreatePurchaseFormProps {
   suppliers: Supplier[];
   products: Product[];
 }
+interface OptionType {
+  value: string;
+  label: string;
+}
+
 export const CreatePurchaseForm = ({
   products,
   suppliers,
@@ -59,7 +65,7 @@ export const CreatePurchaseForm = ({
   const storeId = useStoreId();
 
   const { mutateAsync, isPending } = useCreatePurchase();
-  const [supplier, setSupplier] = useState<any | null>(null);
+  const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [purchaseAmount, setPurchaseAmount] = useState(0);
   const { open } = useCreateSupplierModal();
 
@@ -85,25 +91,22 @@ export const CreatePurchaseForm = ({
   });
   const selectedProducts = form.watch("products");
   // Function to handle product selection
-  const handleProductChange = (selectedOptions: any) => {
-    const selectedValues = selectedOptions || [];
+  const handleProductChange = (selectedOptions: MultiValue<OptionType>) => {
+    const selectedValues = selectedOptions ? [...selectedOptions] : []; // Convert to mutable array
 
-    // Assuming you have a `products` array that contains product details, including price
     const existingProductIds = selectedProducts.map((product) => product.id);
 
-    // Add new products with default price from `products` array
     const newProducts = selectedValues
-      .filter((option: any) => !existingProductIds.includes(option.value))
-      .map((option: any) => {
-        // Find the product details from the original products array
+      .filter((option) => !existingProductIds.includes(option.value))
+      .map((option) => {
         const productDetails = products.find(
-          (product) => product.id == option.value
+          (product) => `${product.id}` === option.value
         );
         return {
           id: option.value,
           name: option.label,
           quantity: 1,
-          price: productDetails ? Number(productDetails.price) : 0, // Default price
+          price: productDetails ? Number(productDetails.price) : 0,
           profit: 25,
           sell: productDetails
             ? Number(productDetails.price) +
@@ -112,15 +115,13 @@ export const CreatePurchaseForm = ({
         };
       });
 
-    // Sync table rows with selected products
     const updatedProducts = [
       ...selectedProducts.filter((product) =>
-        selectedValues.find((option: any) => option.value === product.id)
+        selectedValues.find((option) => option.value === product.id)
       ),
       ...newProducts,
     ];
 
-    // Update form state
     form.setValue("products", updatedProducts);
   };
 
@@ -148,10 +149,14 @@ export const CreatePurchaseForm = ({
 
     try {
       setError(null);
-      const res = await mutateAsync(finalValue);
+      await mutateAsync(finalValue);
       router.push(`/${storeId}/purchases`);
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 
@@ -188,7 +193,7 @@ export const CreatePurchaseForm = ({
                     <FormField
                       name="supplier_id"
                       control={form.control}
-                      render={({ field }) => (
+                      render={() => (
                         <FormItem>
                           <FormLabel>
                             Supplier <span className="text-red-700">*</span>
@@ -198,26 +203,26 @@ export const CreatePurchaseForm = ({
                             control={form.control}
                             render={({ field: { onChange, value, ref } }) => (
                               <FormControl>
-                                <Select2
+                                <Select2<OptionType>
                                   ref={ref}
                                   options={supplierOptions}
                                   styles={customStyles}
                                   value={supplierOptions.find(
                                     (option) => option.value === value
                                   )}
-                                  onChange={(selectedOption) => {
-                                    onChange(selectedOption?.value);
-                                    if (selectedOption) {
-                                      setSupplier(
-                                        suppliers.find(
-                                          (option) =>
-                                            `${option.id}` ===
-                                            selectedOption.value
-                                        )
-                                      );
-                                    } else {
-                                      setSupplier(null);
-                                    }
+                                  onChange={(
+                                    selectedOption: OptionType | null
+                                  ) => {
+                                    onChange(selectedOption?.value ?? null);
+                                    setSupplier(
+                                      selectedOption
+                                        ? suppliers.find(
+                                            (option) =>
+                                              `${option.id}` ===
+                                              `${selectedOption.value}`
+                                          ) ?? null
+                                        : null
+                                    );
                                   }}
                                   placeholder="Select supplier"
                                   isClearable
@@ -346,7 +351,7 @@ export const CreatePurchaseForm = ({
                   <div className="col-span-4 ">
                     <div
                       className="flex items-center  cursor-pointer pt-10"
-                      onClick={() => router.push("/products/create")}
+                      onClick={() => router.push(`/${storeId}/products/create`)}
                     >
                       <p className="text-xs uppercase font-bold text-neutral-500 ">
                         Add Product

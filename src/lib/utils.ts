@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { GroupBase, StylesConfig } from "react-select";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -61,7 +62,12 @@ export function snakeCaseToTitleCase(str: string) {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-export function numberWithCommas(value: any): string {
+export function numberWithCommas(value: number | string): string {
+  // Ensure the value is a number before converting it to a string
+  if (typeof value === "string") {
+    value = parseFloat(value);
+  }
+
   // Ensure the value is rounded to two decimal places
   let convertedAmount: number | string = Math.ceil(value * 100) / 100;
 
@@ -173,8 +179,16 @@ export const numToWords = (number: number): string | undefined => {
   return finalStr;
 };
 
-export const customStyles = {
-  control: (base: any, state: any) => ({
+interface OptionType {
+  value: string;
+  label: string;
+}
+export const customStyles: StylesConfig<
+  OptionType,
+  boolean,
+  GroupBase<OptionType>
+> = {
+  control: (base, state) => ({
     ...base,
     backgroundColor: "white",
     borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
@@ -184,12 +198,12 @@ export const customStyles = {
       borderColor: "#3b82f6",
     },
   }),
-  menu: (base: any) => ({
+  menu: (base) => ({
     ...base,
     zIndex: 9999,
     borderRadius: "0.375rem",
   }),
-  option: (base: any, state: any) => ({
+  option: (base, state) => ({
     ...base,
     backgroundColor: state.isSelected
       ? "#3b82f6"

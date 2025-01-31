@@ -34,6 +34,7 @@ import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useStoreId } from "@/hooks/use-store-id";
+import { AxiosError } from "axios";
 
 interface CreateProductFormPros {
   categoryOptions: {
@@ -93,10 +94,14 @@ export const CreateProductForm = ({
     };
     try {
       setError(null);
-      const res = await mutateAsync(finalValue);
+      await mutateAsync(finalValue);
       router.push(`/${storeId}/products`);
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 

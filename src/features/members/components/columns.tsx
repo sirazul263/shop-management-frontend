@@ -1,13 +1,7 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowUpDown,
-  CheckCircle,
-  ShieldIcon,
-  UserIcon,
-  XCircle,
-} from "lucide-react";
+import { ArrowUpDown, ShieldIcon, UserIcon } from "lucide-react";
 import { format } from "date-fns";
 import { UserAvatar } from "@/features/members/components/user-avatar";
 import { snakeCaseToTitleCase } from "@/lib/utils";

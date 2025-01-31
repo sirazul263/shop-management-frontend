@@ -156,8 +156,11 @@ export const columns: ColumnDef<Purchase>[] = [
                           {item.product.brand.name} {item.product.name}
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          ৳ {numberWithCommas(item.product.sell_price)} (Selling
-                          Price)
+                          ৳{" "}
+                          {numberWithCommas(
+                            Number(item.product.sell_price || 0)
+                          )}{" "}
+                          (Selling Price)
                         </p>
                       </div>
                     </div>
@@ -231,7 +234,7 @@ export const columns: ColumnDef<Purchase>[] = [
       let total_amount = Number(total);
       if (discount_amount && discount_type) {
         if (discount_type === "FIXED") {
-          total_amount = total_amount - Number(discount_amount);
+          total_amount = total_amount + Number(discount_amount);
         } else {
           total_amount =
             total_amount + (total_amount * Number(discount_amount)) / 100;

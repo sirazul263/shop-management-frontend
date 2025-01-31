@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axiosInstance";
+import { Store } from "../types";
 
 interface StorePayload {
   name: string;
@@ -13,7 +14,7 @@ interface StorePayload {
 interface ResponseType {
   status: number;
   message: string;
-  data: any;
+  data: Store;
 }
 export const useCreateStore = () => {
   const queryClient = useQueryClient();
@@ -23,11 +24,11 @@ export const useCreateStore = () => {
       const response = await axiosInstance.post("stores/create", payload);
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Store created Successfully!");
       queryClient.invalidateQueries({ queryKey: ["stores"] });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast.error("Failed to create store");
     },
   });

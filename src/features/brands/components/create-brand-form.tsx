@@ -25,6 +25,7 @@ import { useCreateBrand } from "../api/use-create-brand";
 import { useCreateBrandModal } from "../hooks/use-create-brand-modal";
 import { createBrandSchema } from "../schemas";
 import { useStoreId } from "@/hooks/use-store-id";
+import { AxiosError } from "axios";
 
 interface CreateBrandFormProps {
   onCancel?: () => void;
@@ -36,7 +37,7 @@ export const CreateBrandForm = ({ onCancel }: CreateBrandFormProps) => {
   const { mutateAsync, isPending } = useCreateBrand();
   const { close } = useCreateBrandModal();
 
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -67,11 +68,15 @@ export const CreateBrandForm = ({ onCancel }: CreateBrandFormProps) => {
     };
     try {
       setError(null);
-      const res = await mutateAsync(finalValues);
+      await mutateAsync(finalValues);
       router.refresh();
       close();
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 

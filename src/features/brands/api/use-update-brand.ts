@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getErrorMessage, getMessage } from "@/lib/utils";
 import axiosInstance from "@/lib/axiosInstance";
+import { Brand } from "../types";
 
 interface BrandPayload {
   store_id: string;
@@ -14,7 +15,7 @@ interface ResponseType {
   // Response HTTP status (e.g., 200)
   status: number; // Your API's custom status
   message: string;
-  data: any;
+  data: Brand;
 }
 export const useUpdateBrand = () => {
   const queryClient = useQueryClient();
@@ -34,11 +35,11 @@ export const useUpdateBrand = () => {
       }
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Brand updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["brands"] });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast.error("Failed to update brand");
     },
   });

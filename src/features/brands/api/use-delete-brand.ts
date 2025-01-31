@@ -26,7 +26,7 @@ export const useDeleteBrand = () => {
       toast.success("Brand deleted Successfully!");
       queryClient.invalidateQueries({ queryKey: ["brands"] });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast.error("Failed to delete brand");
     },
   });

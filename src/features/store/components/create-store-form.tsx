@@ -25,6 +25,7 @@ import { createStoreSchema } from "../schemas";
 import { useCreateStoreModal } from "../hooks/use-create-store-modal";
 import { useCreateStore } from "../api/use-create-store";
 import { Textarea } from "@/components/ui/textarea";
+import { AxiosError } from "axios";
 
 interface CreateStoreFormPros {
   onCancel?: () => void;
@@ -36,7 +37,7 @@ export const CreateStoreForm = ({ onCancel }: CreateStoreFormPros) => {
   const { mutateAsync, isPending } = useCreateStore();
   const { close } = useCreateStoreModal();
 
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -69,11 +70,15 @@ export const CreateStoreForm = ({ onCancel }: CreateStoreFormPros) => {
     };
     try {
       setError(null);
-      const res = await mutateAsync(finalValues);
+      await mutateAsync(finalValues);
       router.refresh();
       close();
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 

@@ -22,6 +22,7 @@ import { useCreateSupplier } from "../api/use-create-supplier";
 import { useCreateSupplierModal } from "../hooks/use-create-supplier-modal";
 import { createSupplierSchema } from "../schemas";
 import { useStoreId } from "@/hooks/use-store-id";
+import { AxiosError } from "axios";
 
 interface CreateSupplierFormPros {
   onCancel?: () => void;
@@ -31,7 +32,7 @@ export const CreateSupplierForm = ({ onCancel }: CreateSupplierFormPros) => {
   const storeId = useStoreId();
   const { mutateAsync, isPending } = useCreateSupplier();
   const { close } = useCreateSupplierModal();
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const form = useForm<z.infer<typeof createSupplierSchema>>({
     resolver: zodResolver(createSupplierSchema),
     defaultValues: {
@@ -48,11 +49,15 @@ export const CreateSupplierForm = ({ onCancel }: CreateSupplierFormPros) => {
     finalValues.phone = `880${values.phone}`;
     try {
       setError(null);
-      const res = await mutateAsync(finalValues);
+      await mutateAsync(finalValues);
       router.refresh();
       close();
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 

@@ -24,6 +24,7 @@ import { Brand } from "../types";
 import { useUpdateBrand } from "../api/use-update-brand";
 import { createBrandSchema } from "../schemas";
 import { useStoreId } from "@/hooks/use-store-id";
+import { AxiosError } from "axios";
 
 interface UpdateBrandFormProps {
   onClose: () => void;
@@ -37,7 +38,7 @@ export const UpdateBrandForm = ({
   const storeId = useStoreId();
   const { mutateAsync, isPending } = useUpdateBrand();
 
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -68,10 +69,14 @@ export const UpdateBrandForm = ({
     };
     try {
       setError(null);
-      const res = await mutateAsync(finalValues);
+      await mutateAsync(finalValues);
       onClose();
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 

@@ -1,5 +1,5 @@
 "use client";
-import { Loader, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -13,26 +13,22 @@ import { useEffect, useState } from "react";
 import { useLogout } from "../api/use-logout";
 
 export const UserButton = () => {
-  const user = getCurrent();
-
-  const { mutate: logout } = useLogout();
-
-  if (!user) {
-    return null;
-  }
-
-  const { name, email } = user;
-
-  const avatarFallback = name
-    ? name.charAt(0).toUpperCase()
-    : email.charAt(0).toUpperCase() ?? "U";
-
   const [isClient, setIsClient] = useState(false);
+  const { mutate: logout } = useLogout();
+  const user = isClient ? getCurrent() : null;
+
   useEffect(() => {
     setIsClient(true); // Ensure this runs only on the client
   }, []);
 
   if (!isClient) return null;
+  if (!user) return null;
+
+  const { name, email } = user;
+  const avatarFallback = name
+    ? name.charAt(0).toUpperCase()
+    : email.charAt(0).toUpperCase() ?? "U";
+
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="outline-none relative">

@@ -59,7 +59,7 @@ export const useLogin = () => {
       router.replace("/");
       queryClient.invalidateQueries({ queryKey: ["current"] });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast.error("Failed to login");
     },
   });

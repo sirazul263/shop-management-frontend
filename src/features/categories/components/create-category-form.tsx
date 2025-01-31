@@ -25,6 +25,7 @@ import { useCreateCategoryModal } from "../hooks/use-create-category-modal";
 import { createCategorySchema } from "../schemas";
 import { useCreateCategory } from "../api/use-create-category";
 import { useStoreId } from "@/hooks/use-store-id";
+import { AxiosError } from "axios";
 
 interface CreateCategoryFormPros {
   onCancel?: () => void;
@@ -36,7 +37,7 @@ export const CreateCategoryForm = ({ onCancel }: CreateCategoryFormPros) => {
   const { mutateAsync, isPending } = useCreateCategory();
   const { close } = useCreateCategoryModal();
 
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -67,11 +68,15 @@ export const CreateCategoryForm = ({ onCancel }: CreateCategoryFormPros) => {
     };
     try {
       setError(null);
-      const res = await mutateAsync(finalValues);
+      await mutateAsync(finalValues);
       router.refresh();
       close();
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 

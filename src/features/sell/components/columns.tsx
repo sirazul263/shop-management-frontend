@@ -87,8 +87,11 @@ export const columns: ColumnDef<Sell>[] = [
                           {item.product.brand.name} {item.product.name}
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          ৳ {numberWithCommas(item.product.sell_price)} (Selling
-                          Price)
+                          ৳{" "}
+                          {item.product.sell_price
+                            ? numberWithCommas(item.product.sell_price)
+                            : 0}{" "}
+                          (Selling Price)
                         </p>
                       </div>
                     </div>

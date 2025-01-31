@@ -21,6 +21,7 @@ import { Supplier } from "../types";
 import { useUpdateSupplier } from "../api/use-update-supplier";
 import { createSupplierSchema } from "../schemas";
 import { useStoreId } from "@/hooks/use-store-id";
+import { AxiosError } from "axios";
 
 interface UpdateCategoryFormProps {
   onClose: () => void;
@@ -33,7 +34,7 @@ export const UpdateSupplierForm = ({
 }: UpdateCategoryFormProps) => {
   const storeId = useStoreId();
   const { mutateAsync, isPending } = useUpdateSupplier();
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof createSupplierSchema>>({
     resolver: zodResolver(createSupplierSchema),
@@ -50,17 +51,21 @@ export const UpdateSupplierForm = ({
     };
     try {
       setError(null);
-      const res = await mutateAsync(finalValues);
+      await mutateAsync(finalValues);
       onClose();
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 
   return (
     <Card className="w-full h-full  border-none shadow-none">
       <CardHeader className="flex  p-7">
-        <CardTitle className="text-xl font-bold">Update Category</CardTitle>
+        <CardTitle className="text-xl font-bold">Update Supplier</CardTitle>
       </CardHeader>
       <div className="px-7 ">
         <DottedSeparator />

@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axiosInstance";
+import { Product } from "@/features/products/types";
 
 interface SellPayload {
   store_id: string; // Your store ID
-  products: any; // Array of product IDs
+  products: unknown; // Array of product IDs
   discount_type?: string; //,
   discount_amount?: number;
   payment_method: string;
@@ -15,7 +16,7 @@ interface ResponseType {
   // Response HTTP status (e.g., 200)
   status: number; // Your API's custom status
   message: string;
-  data: any;
+  data: Product;
 }
 export const useCreateSell = () => {
   const queryClient = useQueryClient();
@@ -28,11 +29,11 @@ export const useCreateSell = () => {
       );
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Product added to the sell successfully!");
       queryClient.invalidateQueries({ queryKey: ["sells"] });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast.error("Failed to add the product to the sell");
     },
   });

@@ -21,10 +21,11 @@ import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { useLogin } from "../api/use-login";
 import { getErrorMessage } from "@/lib/utils";
+import { AxiosError } from "axios";
 
 export const SignInCard = () => {
   const { mutateAsync, isPending } = useLogin();
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const loginSchema = z.object({
     email: z.string().email(),
@@ -44,9 +45,13 @@ export const SignInCard = () => {
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
       setError(null);
-      const res = await mutateAsync(values);
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+      await mutateAsync(values);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 

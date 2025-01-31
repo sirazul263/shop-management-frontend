@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import Image from "next/image";
 
 interface StoreCardProps {
   id: string;
@@ -40,10 +41,12 @@ export const StoreCard = ({
       {/* Header with Store Image */}
       <CardHeader className="p-0">
         <div className="relative h-48 w-full">
-          <img
+          <Image
             src={image || "./logo.svg"}
             alt={name}
             className="h-full w-full object-cover rounded-t-lg"
+            loading="lazy"
+            fill
           />
           {status === "ACTIVE" && (
             <Badge className="absolute top-2 right-2 bg-green-500 text-white">

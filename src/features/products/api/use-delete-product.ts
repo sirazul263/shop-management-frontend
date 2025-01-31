@@ -26,7 +26,7 @@ export const useDeleteProduct = () => {
       toast.success("Product deleted Successfully!");
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast.error("Failed to delete product");
     },
   });

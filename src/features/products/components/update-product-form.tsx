@@ -35,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Product } from "../types";
 import { useUpdateProduct } from "../api/use-update-product";
 import { useStoreId } from "@/hooks/use-store-id";
+import { AxiosError } from "axios";
 
 interface UpdateProductFormProps {
   initialValue: Product;
@@ -96,10 +97,14 @@ export const UpdateProductForm = ({
     };
     try {
       setError(null);
-      const res = await mutateAsync(finalValue);
+      await mutateAsync(finalValue);
       router.push(`/${storeId}/products`);
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 

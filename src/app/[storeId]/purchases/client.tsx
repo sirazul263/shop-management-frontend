@@ -83,7 +83,7 @@ export const PurchaseClient = () => {
               {suppliers &&
                 suppliers.data &&
                 suppliers.data.map((item: Supplier, i: number) => (
-                  <SelectItem value={`${item.id}`}>
+                  <SelectItem value={`${item.id}`} key={i}>
                     <div className="flex items-center gap-x-2">
                       <DefaultAvatar className="size-6" name={item.name} />
                       {item.name}

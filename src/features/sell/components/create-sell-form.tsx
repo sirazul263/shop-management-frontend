@@ -29,7 +29,7 @@ import { AlertTriangle, InfoIcon } from "lucide-react";
 import { customStyles, getErrorMessage, numberWithCommas } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Product } from "@/features/products/types";
-import Select2 from "react-select";
+import Select2, { MultiValue } from "react-select";
 import { RiAddCircleFill } from "react-icons/ri";
 import { useCreateSell } from "../api/use-create-sell";
 import { createSellSchema } from "../schemas";
@@ -40,9 +40,14 @@ import {
 } from "@/components/ui/popover";
 import { ProductDetails } from "./product-details";
 import { useStoreId } from "@/hooks/use-store-id";
+import { AxiosError } from "axios";
 
 interface CreateSellFormProps {
   products: Product[];
+}
+interface OptionType {
+  value: string;
+  label: string;
 }
 export const CreateSellForm = ({ products }: CreateSellFormProps) => {
   const router = useRouter();
@@ -75,7 +80,7 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
   });
   const selectedProducts = form.watch("products");
   // Function to handle product selection
-  const handleProductChange = (selectedOptions: any) => {
+  const handleProductChange = (selectedOptions: MultiValue<OptionType>) => {
     const selectedValues = selectedOptions || [];
 
     // Assuming you have a `products` array that contains product details, including price
@@ -83,11 +88,11 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
 
     // Add new products with default price from `products` array
     const newProducts = selectedValues
-      .filter((option: any) => !existingProductIds.includes(option.value))
-      .map((option: any) => {
+      .filter((option) => !existingProductIds.includes(option.value))
+      .map((option) => {
         // Find the product details from the original products array
         const productDetails = products.find(
-          (product) => product.id == option.value
+          (product) => `${product.id}` == option.value
         );
         return {
           id: option.value,
@@ -101,7 +106,7 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
     // Sync table rows with selected products
     const updatedProducts = [
       ...selectedProducts.filter((product) =>
-        selectedValues.find((option: any) => option.value === product.id)
+        selectedValues.find((option) => option.value === product.id)
       ),
       ...newProducts,
     ];
@@ -135,10 +140,14 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
 
     try {
       setError(null);
-      const res = await mutateAsync(finalValue);
+      await mutateAsync(finalValue);
       router.push(`/${storeId}/sells`);
-    } catch (error: any) {
-      setError(getErrorMessage(error.response.data));
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        setError(getErrorMessage(error.response.data));
+      } else {
+        setError("An unexpected error occurred");
+      }
     }
   };
 

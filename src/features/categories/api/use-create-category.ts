@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axiosInstance";
+import { Category } from "../types";
 
 interface CategoryPayload {
   store_id: string;
@@ -12,7 +13,7 @@ interface ResponseType {
   // Response HTTP status (e.g., 200)
   status: number; // Your API's custom status
   message: string;
-  data: any;
+  data: Category;
 }
 export const useCreateCategory = () => {
   const queryClient = useQueryClient();
@@ -25,11 +26,11 @@ export const useCreateCategory = () => {
       );
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Category created Successfully!");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast.error("Failed to create category");
     },
   });
