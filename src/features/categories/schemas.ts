@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const createCategorySchema = z.object({
+  store_id: z.string(),
   name: z
     .string()
     .trim()

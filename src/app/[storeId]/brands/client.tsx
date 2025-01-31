@@ -2,12 +2,14 @@
 
 import PageError from "@/components/page-error";
 import PageLoader from "@/components/page-loader";
-import { useGetCategories } from "@/features/categories/api/use-get-categories";
-import { columns } from "@/features/categories/components/columns";
-import { DataTable } from "@/features/categories/components/data-table";
+import { useGetBrands } from "@/features/brands/api/use-get-brands";
+import { columns } from "@/features/brands/components/columns";
+import { DataTable } from "@/features/brands/components/data-table";
+import { useStoreId } from "@/hooks/use-store-id";
 
-export const CategoryClient = () => {
-  const { data: result, isLoading } = useGetCategories();
+export const BrandClient = () => {
+  const storeId = useStoreId();
+  const { data: result, isLoading } = useGetBrands(storeId);
   if (isLoading) {
     return <PageLoader />;
   }

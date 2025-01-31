@@ -2,12 +2,14 @@
 
 import PageError from "@/components/page-error";
 import PageLoader from "@/components/page-loader";
-import { useGetBrands } from "@/features/brands/api/use-get-brands";
-import { columns } from "@/features/brands/components/columns";
-import { DataTable } from "@/features/brands/components/data-table";
+import { useGetSuppliers } from "@/features/suppliers/api/use-get-suppliers";
+import { columns } from "@/features/suppliers/components/columns";
+import { DataTable } from "@/features/suppliers/components/data-table";
+import { useStoreId } from "@/hooks/use-store-id";
 
-export const BrandClient = () => {
-  const { data: result, isLoading } = useGetBrands();
+export const SupplierClient = () => {
+  const storeId = useStoreId();
+  const { data: result, isLoading } = useGetSuppliers(storeId);
   if (isLoading) {
     return <PageLoader />;
   }

@@ -23,6 +23,7 @@ import { uploadImage } from "@/hooks/upload-image";
 import { Brand } from "../types";
 import { useUpdateBrand } from "../api/use-update-brand";
 import { createBrandSchema } from "../schemas";
+import { useStoreId } from "@/hooks/use-store-id";
 
 interface UpdateBrandFormProps {
   onClose: () => void;
@@ -33,6 +34,7 @@ export const UpdateBrandForm = ({
   onClose,
   initialValues,
 }: UpdateBrandFormProps) => {
+  const storeId = useStoreId();
   const { mutateAsync, isPending } = useUpdateBrand();
 
   const [error, setError] = useState<any>(null);
@@ -59,6 +61,7 @@ export const UpdateBrandForm = ({
     }
     const finalValues = {
       ...values,
+      store_id: storeId,
       image: image || "",
       id: initialValues.id,
       is_active: initialValues.is_active,

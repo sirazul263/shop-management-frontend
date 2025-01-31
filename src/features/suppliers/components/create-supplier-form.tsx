@@ -21,13 +21,14 @@ import { useRouter } from "next/navigation";
 import { useCreateSupplier } from "../api/use-create-supplier";
 import { useCreateSupplierModal } from "../hooks/use-create-supplier-modal";
 import { createSupplierSchema } from "../schemas";
+import { useStoreId } from "@/hooks/use-store-id";
 
 interface CreateSupplierFormPros {
   onCancel?: () => void;
 }
 export const CreateSupplierForm = ({ onCancel }: CreateSupplierFormPros) => {
   const router = useRouter();
-
+  const storeId = useStoreId();
   const { mutateAsync, isPending } = useCreateSupplier();
   const { close } = useCreateSupplierModal();
   const [error, setError] = useState<any>(null);
@@ -38,6 +39,7 @@ export const CreateSupplierForm = ({ onCancel }: CreateSupplierFormPros) => {
       email: "",
       phone: "",
       address: "",
+      store_id: storeId,
     },
   });
 

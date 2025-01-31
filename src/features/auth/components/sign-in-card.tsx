@@ -20,10 +20,11 @@ import { DottedSeparator } from "@/components/dotted-separator";
 import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { useLogin } from "../api/use-login";
+import { getErrorMessage } from "@/lib/utils";
 
 export const SignInCard = () => {
   const { mutateAsync, isPending } = useLogin();
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<any>(null);
 
   const loginSchema = z.object({
     email: z.string().email(),
@@ -45,7 +46,7 @@ export const SignInCard = () => {
       setError(null);
       const res = await mutateAsync(values);
     } catch (error: any) {
-      setError(error.message);
+      setError(getErrorMessage(error.response.data));
     }
   };
 

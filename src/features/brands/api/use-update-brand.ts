@@ -4,6 +4,7 @@ import { getErrorMessage, getMessage } from "@/lib/utils";
 import axiosInstance from "@/lib/axiosInstance";
 
 interface BrandPayload {
+  store_id: string;
   id: number;
   name: string;
   is_active: boolean;
@@ -20,7 +21,10 @@ export const useUpdateBrand = () => {
 
   const mutation = useMutation<ResponseType, Error, BrandPayload>({
     mutationFn: async (payload) => {
-      const response = await axiosInstance.put(`brands/${payload.id}`, payload);
+      const response = await axiosInstance.put(
+        `${payload.store_id}/brands/${payload.id}`,
+        payload
+      );
       if (response.status !== 200 || response.data.status !== 1) {
         throw new Error(
           response.status !== 200

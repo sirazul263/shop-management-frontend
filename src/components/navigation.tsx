@@ -1,15 +1,21 @@
 "use client";
 
+import { useStoreId } from "@/hooks/use-store-id";
 import { cn } from "@/lib/utils";
-import { FolderCheck, SettingsIcon, UserIcon } from "lucide-react";
+import {
+  ChartBarStacked,
+  Code,
+  HexagonIcon,
+  Logs,
+  SettingsIcon,
+  ShoppingBagIcon,
+  ShoppingCartIcon,
+  UserIcon,
+  WeightIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  GoCheckCircle,
-  GoCheckCircleFill,
-  GoHome,
-  GoHomeFill,
-} from "react-icons/go";
+import { GoCheckCircleFill, GoHome, GoHomeFill } from "react-icons/go";
 
 const routes = [
   {
@@ -21,26 +27,50 @@ const routes = [
   {
     label: "Categories",
     href: "categories",
-    icon: FolderCheck,
+    icon: ChartBarStacked,
     activeIcon: GoCheckCircleFill,
   },
   {
     label: "Brands",
     href: "brands",
-    icon: GoCheckCircle,
+    icon: HexagonIcon,
     activeIcon: GoCheckCircleFill,
   },
   {
     label: "Products",
     href: "products",
-    icon: GoCheckCircle,
+    icon: ShoppingCartIcon,
+    activeIcon: GoCheckCircleFill,
+  },
+  {
+    label: "Purchase History",
+    href: "purchases",
+    icon: ShoppingBagIcon,
+    activeIcon: GoCheckCircleFill,
+  },
+  {
+    label: "Sales History",
+    href: "sells",
+    icon: WeightIcon,
+    activeIcon: GoCheckCircleFill,
+  },
+  {
+    label: "New Sale",
+    href: "sells/create",
+    icon: WeightIcon,
     activeIcon: GoCheckCircleFill,
   },
   {
     label: "Suppliers",
     href: "suppliers",
-    icon: GoCheckCircle,
+    icon: Code,
     activeIcon: GoCheckCircleFill,
+  },
+  {
+    label: "Logs",
+    href: "logs",
+    icon: Logs,
+    activeIcon: UserIcon,
   },
   {
     label: "Settings",
@@ -49,8 +79,8 @@ const routes = [
     activeIcon: SettingsIcon,
   },
   {
-    label: "Members",
-    href: "members",
+    label: "Users",
+    href: "users",
     icon: UserIcon,
     activeIcon: UserIcon,
   },
@@ -58,10 +88,11 @@ const routes = [
 
 const Navigation = () => {
   const pathname = usePathname();
+  const storeId = useStoreId();
   return (
     <ul className="flex flex-col">
       {routes.map((item) => {
-        const fullHref = `/${item.href}`;
+        const fullHref = `/${storeId}/${item.href}`;
         const isActive = pathname === fullHref;
         const Icon = isActive ? item.activeIcon : item.icon;
 

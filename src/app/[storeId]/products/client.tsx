@@ -1,13 +1,14 @@
 "use client";
-
 import PageError from "@/components/page-error";
 import PageLoader from "@/components/page-loader";
-import { useGetSuppliers } from "@/features/suppliers/api/use-get-suppliers";
-import { columns } from "@/features/suppliers/components/columns";
-import { DataTable } from "@/features/suppliers/components/data-table";
+import { useGetProducts } from "@/features/products/api/use-get-products";
+import { columns } from "@/features/products/components/columns";
+import { DataTable } from "@/features/products/components/data-table";
+import { useStoreId } from "@/hooks/use-store-id";
 
-export const SupplierClient = () => {
-  const { data: result, isLoading } = useGetSuppliers();
+export const ProductClient = () => {
+  const storeId = useStoreId();
+  const { data: result, isLoading } = useGetProducts(storeId);
   if (isLoading) {
     return <PageLoader />;
   }

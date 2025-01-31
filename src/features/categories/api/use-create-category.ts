@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { getErrorMessage, getMessage } from "@/lib/utils";
 import axiosInstance from "@/lib/axiosInstance";
 
 interface CategoryPayload {
+  store_id: string;
   name: string;
   image: string | File;
   is_active: boolean;
@@ -19,7 +19,10 @@ export const useCreateCategory = () => {
 
   const mutation = useMutation<ResponseType, Error, CategoryPayload>({
     mutationFn: async (payload) => {
-      const response = await axiosInstance.post("categories/create", payload);
+      const response = await axiosInstance.post(
+        `${payload.store_id}/categories/create`,
+        payload
+      );
       return response.data;
     },
     onSuccess: (data) => {

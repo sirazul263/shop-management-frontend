@@ -4,6 +4,7 @@ import { getErrorMessage, getMessage } from "@/lib/utils";
 import axiosInstance from "@/lib/axiosInstance";
 
 interface BrandPayload {
+  store_id: string;
   name: string;
   image: string | File;
   is_active: boolean;
@@ -19,7 +20,10 @@ export const useCreateBrand = () => {
 
   const mutation = useMutation<ResponseType, Error, BrandPayload>({
     mutationFn: async (payload) => {
-      const response = await axiosInstance.post("brands/create", payload);
+      const response = await axiosInstance.post(
+        `${payload.store_id}/brands/create`,
+        payload
+      );
       if (response.status !== 200 || response.data.status !== 1) {
         throw new Error(
           response.status !== 200

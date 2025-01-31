@@ -2,10 +2,10 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosInstance = axios.create({
-  baseURL: "http://shop-management-api.test/api", // Replace with your API's base URL
-  timeout: 6000, // Set a timeout (optional)
+  baseURL: "http://shop-management-api.test/api",
+  timeout: 6000,
   headers: {
-    "Content-Type": "application/json", // Set default headers
+    "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
@@ -13,11 +13,13 @@ const axiosInstance = axios.create({
 // Add a request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Modify or add headers before the request is sent
-    const token = Cookies.get("userToken"); // Example: Retrieve token from localStorage
-    if (token) {
+    const token = Cookies.get("userToken");
+
+    // Exclude Authorization header for login requests
+    if (token && !config.url?.includes("login")) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => {
@@ -28,13 +30,13 @@ axiosInstance.interceptors.request.use(
 // Add a response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
-    // Handle successful responses
     return response;
   },
   (error) => {
-    // Handle errors
-    if (error.response && error.response.status === 401) {
-      // Example: Redirect to login on 401 Unauthorized
+    if (error.response?.status === 401) {
+      Cookies.remove("userToken");
+      Cookies.remove("authUser");
+      Cookies.remove("storeId");
       window.location.href = "/sign-in";
     }
     return Promise.reject(error);

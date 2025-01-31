@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Supplier } from "../types";
 import { useDeleteSupplier } from "../api/use-delete-supplier";
 import UpdateSupplierModal from "./update-supplier-modal";
+import { useStoreId } from "@/hooks/use-store-id";
 
 interface SupplierActionsProps {
   data: Supplier;
@@ -21,6 +22,7 @@ export const SupplierActions = ({ data, children }: SupplierActionsProps) => {
     "This action can not be undone",
     "destructive"
   );
+  const storeId = useStoreId();
   const { mutate, isPending } = useDeleteSupplier();
   const onDelete = async () => {
     const ok = await confirm();
@@ -28,6 +30,7 @@ export const SupplierActions = ({ data, children }: SupplierActionsProps) => {
       return;
     }
     mutate({
+      storeId,
       supplierId: data.id,
     });
   };

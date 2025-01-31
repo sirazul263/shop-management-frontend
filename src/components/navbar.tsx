@@ -12,13 +12,29 @@ const pathnameMap = {
     title: "Brands",
     description: "View all of your brands",
   },
-  members: {
-    title: "All Members",
-    description: "All the members of your project",
+  users: {
+    title: "All Users",
+    description: "All the users of your company",
+  },
+  products: {
+    title: "Products",
+    description: "View all of your products",
+  },
+  purchases: {
+    title: "Purchase History",
+    description: "View all of your purchased items",
+  },
+  sells: {
+    title: "Sales History",
+    description: "View all of your purchased items",
   },
   suppliers: {
     title: "Suppliers",
     description: "View all of your suppliers",
+  },
+  logs: {
+    title: "Logs",
+    description: "All the logs of your company",
   },
 };
 

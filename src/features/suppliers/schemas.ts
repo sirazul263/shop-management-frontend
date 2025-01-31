@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const createSupplierSchema = z.object({
+  store_id: z.string(),
   name: z
     .string()
     .trim()

@@ -28,7 +28,6 @@ export default function RootLayout({
         <ProgressBarProvider>
           <QueryProviders>
             <Toaster />
-
             <NuqsAdapter>{children}</NuqsAdapter>
           </QueryProviders>
         </ProgressBarProvider>

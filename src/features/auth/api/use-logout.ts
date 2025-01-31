@@ -16,11 +16,12 @@ export const useLogout = () => {
       }
       Cookies.remove("userToken");
       Cookies.remove("authUser");
+      Cookies.remove("authUser");
       return response.data;
     },
     onSuccess: () => {
       toast.success("Logged out successfully!");
-      //   router.refresh();
+      router.refresh();
       queryClient.invalidateQueries();
     },
     onError: (e) => {

@@ -26,7 +26,6 @@ export const useLogin = () => {
   const mutation = useMutation<ResponseType, Error, LoginPayload>({
     mutationFn: async (payload) => {
       const response = await axiosInstance.post(`login`, payload);
-
       if (response.status !== 200 || response.data.status !== 1) {
         throw new Error(
           response.status !== 200

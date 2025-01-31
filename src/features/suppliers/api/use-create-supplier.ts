@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import axiosInstance from "@/lib/axiosInstance";
 
 interface SupplierPayload {
+  store_id: string;
   name: string;
   email: string;
   phone: string;
@@ -19,7 +20,10 @@ export const useCreateSupplier = () => {
 
   const mutation = useMutation<ResponseType, Error, SupplierPayload>({
     mutationFn: async (payload) => {
-      const response = await axiosInstance.post("suppliers/create", payload);
+      const response = await axiosInstance.post(
+        `${payload.store_id}/suppliers/create`,
+        payload
+      );
       return response.data;
     },
     onSuccess: (data) => {

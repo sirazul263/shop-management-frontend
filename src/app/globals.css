@@ -76,3 +76,11 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Remove spinner in Firefox */
+}
+
+input[type="number"]:focus {
+  outline: none;
+}

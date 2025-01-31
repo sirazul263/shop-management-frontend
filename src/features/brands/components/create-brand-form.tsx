@@ -24,6 +24,7 @@ import { uploadImage } from "@/hooks/upload-image";
 import { useCreateBrand } from "../api/use-create-brand";
 import { useCreateBrandModal } from "../hooks/use-create-brand-modal";
 import { createBrandSchema } from "../schemas";
+import { useStoreId } from "@/hooks/use-store-id";
 
 interface CreateBrandFormProps {
   onCancel?: () => void;
@@ -31,7 +32,7 @@ interface CreateBrandFormProps {
 
 export const CreateBrandForm = ({ onCancel }: CreateBrandFormProps) => {
   const router = useRouter();
-
+  const storeId = useStoreId();
   const { mutateAsync, isPending } = useCreateBrand();
   const { close } = useCreateBrandModal();
 
@@ -60,6 +61,7 @@ export const CreateBrandForm = ({ onCancel }: CreateBrandFormProps) => {
     }
     const finalValues = {
       ...values,
+      store_id: storeId,
       image: image || "",
       is_active: true,
     };

@@ -4,6 +4,7 @@ import axiosInstance from "@/lib/axiosInstance";
 
 interface ParamsType {
   categoryId: number;
+  storeId: string;
 }
 
 interface ResponseType {
@@ -17,7 +18,7 @@ export const useDeleteCategory = () => {
   const mutation = useMutation<ResponseType, Error, ParamsType>({
     mutationFn: async (params: ParamsType) => {
       const response = await axiosInstance.delete(
-        `categories/${params.categoryId}`
+        `${params.storeId}/categories/${params.categoryId}`
       );
       return response.data;
     },

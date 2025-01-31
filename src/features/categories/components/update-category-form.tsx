@@ -24,6 +24,7 @@ import { uploadImage } from "@/hooks/upload-image";
 import { Category } from "../types";
 import { createCategorySchema } from "../schemas";
 import { useUpdateCategory } from "../api/use-update-category";
+import { useStoreId } from "@/hooks/use-store-id";
 
 interface UpdateCategoryFormProps {
   onClose: () => void;
@@ -34,6 +35,8 @@ export const UpdateCategoryForm = ({
   onClose,
   initialValues,
 }: UpdateCategoryFormProps) => {
+  const storeId = useStoreId();
+
   const { mutateAsync, isPending } = useUpdateCategory();
 
   const [error, setError] = useState<any>(null);
@@ -63,6 +66,7 @@ export const UpdateCategoryForm = ({
       image: image || "",
       id: initialValues.id,
       is_active: initialValues.is_active,
+      store_id: storeId,
     };
     try {
       setError(null);
