@@ -203,7 +203,7 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
                   <div className="col-span-4 ">
                     <div
                       className="flex items-center  cursor-pointer pt-10"
-                      onClick={() => router.push("/products/create")}
+                      onClick={() => router.push(`/${storeId}/products/create`)}
                     >
                       <p className="text-xs uppercase font-bold text-neutral-500 ">
                         Add Product
@@ -726,6 +726,7 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
                 size="lg"
                 variant="destructive"
                 disabled={isPending}
+                onClick={() => router.back()}
               >
                 Cancel
               </Button>

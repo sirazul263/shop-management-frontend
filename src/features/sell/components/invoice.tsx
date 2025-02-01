@@ -13,8 +13,6 @@ interface InvoiceProps {
 export const Invoice = ({ data }: InvoiceProps) => {
   const store = Cookies.get("store") ?? "";
   const storeName = store ? JSON.parse(store).name : "";
-
-  console.log(data);
   const generatePdf = () => {
     const pdf = new jsPDF();
     // Invoice Title
