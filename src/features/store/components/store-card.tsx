@@ -33,7 +33,17 @@ export const StoreCard = ({
   const router = useRouter();
   // Navigate to store details page when clicked
   const handleSelect = () => {
-    Cookies.set("storeId", id);
+    Cookies.set(
+      "store",
+      JSON.stringify({
+        name: name,
+        id: id,
+        image: image,
+        description: description,
+        address: address,
+        phone: phone,
+      })
+    );
     router.push(`/${id}`);
   };
   return (

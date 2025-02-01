@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Sell } from "../types";
+import { Invoice } from "./invoice";
 
 export const columns: ColumnDef<Sell>[] = [
   {
@@ -31,13 +32,7 @@ export const columns: ColumnDef<Sell>[] = [
       );
     },
     cell: ({ row }) => {
-      const invoice_id = row.original.invoice_id;
-
-      return (
-        <div>
-          <p className="line-clamp-1">{invoice_id}</p>
-        </div>
-      );
+      return <Invoice data={row.original} />;
     },
   },
 

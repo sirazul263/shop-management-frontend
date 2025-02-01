@@ -3,8 +3,9 @@ import StoreClient from "./client";
 import { redirect } from "next/navigation";
 const StorePage = () => {
   const cookieStore = cookies();
-  const storeId = cookieStore.get("storeId")?.value;
-  if (storeId) {
+  const store = cookieStore.get("store")?.value;
+  if (store) {
+    const storeId = JSON.parse(store).id;
     redirect(`/${storeId}`);
   }
   return <StoreClient />;
