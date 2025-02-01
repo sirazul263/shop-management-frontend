@@ -36,7 +36,7 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       Cookies.remove("userToken");
       Cookies.remove("authUser");
-      Cookies.remove("storeId");
+      Cookies.remove("store");
       window.location.href = "/sign-in";
     }
     return Promise.reject(error);

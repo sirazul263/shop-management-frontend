@@ -16,7 +16,7 @@ export const useLogout = () => {
       }
       Cookies.remove("userToken");
       Cookies.remove("authUser");
-      Cookies.remove("authUser");
+      Cookies.remove("store");
       return response.data;
     },
     onSuccess: () => {
