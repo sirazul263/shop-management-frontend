@@ -5,4 +5,7 @@ export type User = {
   role: string;
   status: string;
   created_at: string;
+  stores: {
+    name: string;
+  }[];
 };

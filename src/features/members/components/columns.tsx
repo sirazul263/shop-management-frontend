@@ -1,7 +1,13 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, ShieldIcon, UserIcon } from "lucide-react";
+import {
+  ArrowUpDown,
+  CheckCircle,
+  ShieldIcon,
+  UserIcon,
+  XCircle,
+} from "lucide-react";
 import { format } from "date-fns";
 import { UserAvatar } from "@/features/members/components/user-avatar";
 import { snakeCaseToTitleCase } from "@/lib/utils";
@@ -85,35 +91,65 @@ export const columns: ColumnDef<User>[] = [
       );
     },
   },
-  //   {
-  //     accessorKey: "status",
-  //     header: ({ column }) => {
-  //       return (
-  //         <Button
-  //           variant="ghost"
-  //           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //           className="px-0"
-  //         >
-  //           Status
-  //           <ArrowUpDown className="ml-2 h-4 w-4" />
-  //         </Button>
-  //       );
-  //     },
-  //     cell: ({ row }) => {
-  //       const status = row.original.status;
-  //       return (
-  //         <div className="flex items-center">
-  //           {status === "ACTIVE" ? (
-  //             <CheckCircle color="green" className="size-4 mr-2" />
-  //           ) : (
-  //             <XCircle color="red" className="size-4 mr-2" />
-  //           )}
+  {
+    accessorKey: "stores",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="px-0"
+      >
+        Stores
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const stores = row.original.stores;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {stores.map((store, i) => (
+            <p className="line-clamp-1" key={i}>
+              {store.name}
+            </p>
+          ))}
+        </div>
+      );
+    },
+    filterFn: (row, columnId, filterValue) => {
+      const stores = row.getValue(columnId) as { id: string; name: string }[];
+      return stores.some((store) => store.id === filterValue);
+    },
+    enableColumnFilter: true,
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="px-0"
+        >
+          Status
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const status = row.original.status;
+      return (
+        <div className="flex items-center">
+          {status === "ACTIVE" ? (
+            <CheckCircle color="green" className="size-4 mr-2" />
+          ) : (
+            <XCircle color="red" className="size-4 mr-2" />
+          )}
 
-  //           <p className="line-champ-1 ">{snakeCaseToTitleCase(status)}</p>
-  //         </div>
-  //       );
-  //     },
-  //   },
+          <p className="line-champ-1 ">{snakeCaseToTitleCase(status)}</p>
+        </div>
+      );
+    },
+  },
   {
     accessorKey: "created_at",
     header: ({ column }) => {

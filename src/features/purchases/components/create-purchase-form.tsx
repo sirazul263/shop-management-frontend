@@ -369,6 +369,7 @@ export const CreatePurchaseForm = ({
                   <thead className="bg-gray-100">
                     <tr>
                       <th className="px-4 py-2 border">Product Name</th>
+                      <th className="px-4 py-2 border">IMEI/SN Number</th>
                       <th className="px-4 py-2 border">Quantity</th>
                       <th className="px-4 py-2 border">Price</th>
                       <th className="px-4 py-2 border">Profit Margin (%)</th>
@@ -405,6 +406,50 @@ export const CreatePurchaseForm = ({
                             )}
                           />
                         </td>
+                        <td className="px-4 py-2 border">
+                          <FormField
+                            name={`products.${index}.price`}
+                            control={form.control}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    type="number"
+                                    placeholder="Enter price"
+                                    {...form.register(
+                                      `products.${index}.price`,
+                                      {
+                                        valueAsNumber: true, // Converts the input value to a number
+                                        setValueAs: (value) =>
+                                          value === "" ? 0 : value,
+                                      }
+                                    )}
+                                    onChange={(e) => {
+                                      const newPrice =
+                                        parseFloat(e.target.value) || 0;
+                                      const profit =
+                                        form.getValues(
+                                          `products.${index}.profit`
+                                        ) || 0;
+                                      form.setValue(
+                                        `products.${index}.price`,
+                                        newPrice
+                                      );
+                                      form.setValue(
+                                        `products.${index}.sell`,
+                                        newPrice + (newPrice * profit) / 100
+                                      );
+                                    }}
+                                    onWheel={(e) => e.currentTarget.blur()}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </td>
+
                         <td className="px-4 py-2 border">
                           <FormField
                             name={`products.${index}.price`}
