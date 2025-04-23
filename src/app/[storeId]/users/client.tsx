@@ -12,7 +12,7 @@ export const UserClient = () => {
   const storeId = useStoreId();
   const { data: users, isLoading: isLoadingUsers } = useGetUsers(storeId);
   const { data: stores, isLoading } = useGetStores();
-  if (isLoadingUsers) {
+  if (isLoadingUsers || isLoading) {
     return <PageLoader />;
   }
   if (!users) {
