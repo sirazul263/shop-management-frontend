@@ -31,7 +31,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Store } from "@/features/store/types";
-import { useRouter } from "next/navigation";
 import { RiAddCircleFill } from "react-icons/ri";
 import { useCreateUserModal } from "../hooks/use-create-user-modal";
 
