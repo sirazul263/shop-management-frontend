@@ -36,6 +36,10 @@ const pathnameMap = {
     title: "Logs",
     description: "All the logs of your company",
   },
+  settings: {
+    title: "Settings",
+    description: "Manage your profile here",
+  },
 };
 
 const defaultMap = {
@@ -51,12 +55,17 @@ const Navbar = () => {
       ? (pathnameParts[1] as keyof typeof pathnameMap)
       : (pathnameParts[2] as keyof typeof pathnameMap);
   const { title, description } = pathnameMap[pathnameKey] || defaultMap;
+
+  // const store = Cookies.get("store");
+  // const storeName = store ? JSON.parse(store).name : "";
+
   return (
     <nav className="pt-4 px-6 flex justify-between items-center">
       <div className="flex-col hidden lg:flex">
         <h1 className="text-2xl font-semibold">{title}</h1>
         <p className="text-muted-foreground">{description}</p>
       </div>
+      {/* {storeName && <p className="text-xl font-bold">{storeName}</p>} */}
       <MobileSidebar />
       <UserButton />
     </nav>

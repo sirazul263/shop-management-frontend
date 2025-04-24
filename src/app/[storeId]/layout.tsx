@@ -3,6 +3,7 @@ import Sidebar from "@/components/sidebar";
 import CreateBrandModal from "@/features/brands/components/create-brand-modal";
 import CreateCategoryModal from "@/features/categories/components/create-category-modal";
 import CreateUserModal from "@/features/members/components/create-user-modal";
+import ChangePasswordModal from "@/features/settings/components/change-password-modal";
 import CreateSupplierModal from "@/features/suppliers/components/create-supplier-modal";
 
 interface DashboardLayoutProps {
@@ -15,6 +16,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <CreateBrandModal />
       <CreateSupplierModal />
       <CreateUserModal />
+      <ChangePasswordModal />
       <div className="flex w-full h-full">
         <div className="fixed left-0 top-0 hidden lg:block lg:w-[264px] h-full overflow-y-auto">
           <Sidebar />

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowUpDown,
   CheckCircle,
+  MoreVertical,
   ShieldIcon,
   UserIcon,
   XCircle,
@@ -12,6 +13,7 @@ import { format } from "date-fns";
 import { UserAvatar } from "@/features/members/components/user-avatar";
 import { snakeCaseToTitleCase } from "@/lib/utils";
 import { User } from "../types";
+import { UserActions } from "./user-actions";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -145,7 +147,9 @@ export const columns: ColumnDef<User>[] = [
             <XCircle color="red" className="size-4 mr-2" />
           )}
 
-          <p className="line-champ-1 ">{snakeCaseToTitleCase(status)}</p>
+          <p className="line-champ-1 ">
+            {snakeCaseToTitleCase(status || "ACTIVE")}
+          </p>
         </div>
       );
     },
@@ -174,16 +178,16 @@ export const columns: ColumnDef<User>[] = [
     },
   },
 
-  // {
-  //   id: "actions",
-  //   cell: ({ row }) => {
-  //     return (
-  //       <ProjectActions data={row.original}>
-  //         <Button variant="ghost" className="size-8 p-0">
-  //           <MoreVertical className="size-4" />
-  //         </Button>
-  //       </ProjectActions>
-  //     );
-  //   },
-  // },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      return (
+        <UserActions data={row.original}>
+          <Button variant="ghost" className="size-8 p-0">
+            <MoreVertical className="size-4" />
+          </Button>
+        </UserActions>
+      );
+    },
+  },
 ];
