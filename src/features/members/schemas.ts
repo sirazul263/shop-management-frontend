@@ -14,3 +14,12 @@ export const createUserSchema = z.object({
     .max(256, "Password must be at best 256 characters"),
   role: z.string().min(1, "Role is required"),
 });
+
+export const updateUserSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Supplier Name must be at least 1 character")
+    .max(255, "Supplier Name must not be greater than 255 characters"),
+  status: z.string().min(1, "Status is required"),
+});

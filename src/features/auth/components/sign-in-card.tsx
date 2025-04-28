@@ -14,7 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Link from "next/link";
 
 import { DottedSeparator } from "@/components/dotted-separator";
 import { useState } from "react";
@@ -59,6 +58,7 @@ export const SignInCard = () => {
     <Card className="w-full h-full md:w-[487px] border-none shadow-none">
       <CardHeader className="flex items-center justify-center text-center p-7">
         <CardTitle className="text-2xl">Welcome back !</CardTitle>
+        <p>Amirul Telecom</p>
       </CardHeader>
       <div className="px-7 mb-2">
         <DottedSeparator />
@@ -128,7 +128,7 @@ export const SignInCard = () => {
         </Form>
       </CardContent>
 
-      <div className="px-7">
+      {/* <div className="px-7">
         <DottedSeparator />
       </div>
       <CardContent className="p-7 flex items-center justify-center gap-y-4">
@@ -138,7 +138,7 @@ export const SignInCard = () => {
             <span className="text-blue-700">Sign up</span>{" "}
           </Link>
         </p>
-      </CardContent>
+      </CardContent> */}
     </Card>
   );
 };

@@ -15,7 +15,7 @@ import { snakeCaseToTitleCase } from "@/lib/utils";
 import { User } from "../types";
 import { UserActions } from "./user-actions";
 
-export const columns: ColumnDef<User>[] = [
+export const getColumns = (role: string): ColumnDef<User>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -182,11 +182,15 @@ export const columns: ColumnDef<User>[] = [
     id: "actions",
     cell: ({ row }) => {
       return (
-        <UserActions data={row.original}>
-          <Button variant="ghost" className="size-8 p-0">
-            <MoreVertical className="size-4" />
-          </Button>
-        </UserActions>
+        <>
+          {role === "ADMIN" && (
+            <UserActions data={row.original}>
+              <Button variant="ghost" className="size-8 p-0">
+                <MoreVertical className="size-4" />
+              </Button>
+            </UserActions>
+          )}
+        </>
       );
     },
   },

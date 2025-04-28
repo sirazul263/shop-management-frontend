@@ -10,7 +10,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Shop management",
+  title: "Amirul Telecom",
   description: "A shop management system",
   icons: {
     icon: "/logo.svg",

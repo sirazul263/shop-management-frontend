@@ -18,13 +18,13 @@ export const StoreMain = ({ stores }: StoreCardProps) => {
         <nav className="flex justify-between items-center">
           <div className="flex items-center">
             <Image src="/logo.svg" height={40} width={40} alt="Logo" />{" "}
-            <p className="ms-1">Shop Management</p>
+            <p className="ms-1">Amirul Telecom</p>
           </div>
           <Button onClick={open}>Create New Store</Button>
         </nav>
         <div className="flex flex-col items-center justify-center pt-4 md:pt-14">
           <h1 className="text-4xl font-bold text-center text-neutral-900">
-            Shop Management System
+            Amirul Telecom
           </h1>
           <p className="text-lg text-center text-neutral-600">
             Manage your store easily with this simple application.

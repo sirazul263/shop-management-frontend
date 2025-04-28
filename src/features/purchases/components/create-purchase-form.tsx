@@ -369,7 +369,7 @@ export const CreatePurchaseForm = ({
                   <thead className="bg-gray-100">
                     <tr>
                       <th className="px-4 py-2 border">Product Name</th>
-                      <th className="px-4 py-2 border">IMEI/SN Number</th>
+                      {/* <th className="px-4 py-2 border">IMEI/SN Number</th> */}
                       <th className="px-4 py-2 border">Quantity</th>
                       <th className="px-4 py-2 border">Price</th>
                       <th className="px-4 py-2 border">Profit Margin (%)</th>
@@ -381,6 +381,7 @@ export const CreatePurchaseForm = ({
                     {fields.map((field, index) => (
                       <tr key={field.id}>
                         <td className="px-4 py-2 border">{field.name}</td>
+
                         <td className="px-4 py-2 border">
                           <FormField
                             name={`products.${index}.quantity`}
