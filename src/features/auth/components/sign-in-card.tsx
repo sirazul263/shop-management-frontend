@@ -26,8 +26,8 @@ import ForgotPasswordModal from "./forgot-password-modal";
 
 export const SignInCard = () => {
   const { mutateAsync, isPending } = useLogin();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showForgetPassword, setShowForgetPassword] = useState<boolean>(false);
-
   const [error, setError] = useState<string | null>(null);
 
   const loginSchema = z.object({
@@ -92,39 +92,35 @@ export const SignInCard = () => {
             <FormField
               name="password"
               control={form.control}
-              render={({ field }) => {
-                const [showPassword, setShowPassword] =
-                  useState<boolean>(false);
-                return (
-                  <FormItem>
-                    <FormLabel>
-                      Password <span className="text-red-700">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          {...field}
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Enter password"
-                          className="pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
-                        >
-                          {showPassword ? (
-                            <EyeOff size={18} />
-                          ) : (
-                            <Eye size={18} />
-                          )}
-                        </button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Password <span className="text-red-700">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter password"
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                      >
+                        {showPassword ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <div className="flex justify-between items-center mb-6">
