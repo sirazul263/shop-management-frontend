@@ -17,7 +17,7 @@ import {
 
 import { DottedSeparator } from "@/components/dotted-separator";
 import { useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Eye, EyeOff } from "lucide-react";
 import { useLogin } from "../api/use-login";
 import { getErrorMessage } from "@/lib/utils";
 import { AxiosError } from "axios";
@@ -92,21 +92,39 @@ export const SignInCard = () => {
             <FormField
               name="password"
               control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Password <span className="text-red-700">*</span>{" "}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="password"
-                      placeholder="Enter password"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const [showPassword, setShowPassword] =
+                  useState<boolean>(false);
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      Password <span className="text-red-700">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          {...field}
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter password"
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                        >
+                          {showPassword ? (
+                            <EyeOff size={18} />
+                          ) : (
+                            <Eye size={18} />
+                          )}
+                        </button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             <div className="flex justify-between items-center mb-6">
