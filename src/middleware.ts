@@ -3,7 +3,12 @@ import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("userToken")?.value;
-  const publicRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
+  const publicRoutes = [
+    "/sign-in",
+    "/sign-up",
+    "/forgot-password",
+    "/reset-password",
+  ];
   if (
     req.nextUrl.pathname.startsWith("/logo.svg") || // Public images
     req.nextUrl.pathname.startsWith("/_next/static") || // Next.js static files

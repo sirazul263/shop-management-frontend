@@ -21,9 +21,13 @@ import { AlertTriangle } from "lucide-react";
 import { useLogin } from "../api/use-login";
 import { getErrorMessage } from "@/lib/utils";
 import { AxiosError } from "axios";
+import { Checkbox } from "@/components/ui/checkbox";
+import ForgotPasswordModal from "./forgot-password-modal";
 
 export const SignInCard = () => {
   const { mutateAsync, isPending } = useLogin();
+  const [showForgetPassword, setShowForgetPassword] = useState<boolean>(false);
+
   const [error, setError] = useState<string | null>(null);
 
   const loginSchema = z.object({
@@ -105,6 +109,18 @@ export const SignInCard = () => {
               )}
             />
 
+            <div className="flex justify-between items-center mb-6">
+              <Checkbox label={"Remember me"} defaultChecked />
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-sm text-gray-500 font-normal"
+                onClick={() => setShowForgetPassword(true)}
+              >
+                Forgot password?
+              </Button>
+            </div>
+
             {error && (
               <div className="flex items-center">
                 <AlertTriangle className="size-5 text-red-700 mr-2" />
@@ -115,7 +131,7 @@ export const SignInCard = () => {
             <Button
               type="submit"
               size="lg"
-              className="w-full"
+              className="w-full "
               disabled={isPending}
             >
               {isPending ? (
@@ -127,18 +143,12 @@ export const SignInCard = () => {
           </form>
         </Form>
       </CardContent>
-
-      {/* <div className="px-7">
-        <DottedSeparator />
-      </div>
-      <CardContent className="p-7 flex items-center justify-center gap-y-4">
-        <p>
-          Don&apos;t have an account ?{" "}
-          <Link href="/sign-up">
-            <span className="text-blue-700">Sign up</span>{" "}
-          </Link>
-        </p>
-      </CardContent> */}
+      {showForgetPassword && (
+        <ForgotPasswordModal
+          show={showForgetPassword}
+          setShow={setShowForgetPassword}
+        />
+      )}
     </Card>
   );
 };
