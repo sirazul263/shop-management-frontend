@@ -90,16 +90,23 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
     const newProducts = selectedValues
       .filter((option) => !existingProductIds.includes(option.value))
       .map((option) => {
-        // Find the product details from the original products array
         const productDetails = products.find(
-          (product) => `${product.id}` == option.value
+          (product) => `${product.id}` === option.value
         );
+
         return {
           id: option.value,
           name: option.label,
-          quantity: 1,
-          unit_amount: productDetails ? Number(productDetails.sell_price) : 0, // Default price
+          quantity: 0,
+          unit_amount: productDetails ? Number(productDetails.sell_price) : 0,
           total_amount: productDetails ? Number(productDetails.sell_price) : 0,
+          imeis: productDetails
+            ? Array.isArray(productDetails.imeis)
+              ? productDetails.imeis.map((i) =>
+                  typeof i === "string" ? { id: 0, imei: i } : i
+                )
+              : []
+            : [],
         };
       });
 
@@ -118,10 +125,12 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
   const onSubmit = async (values: z.infer<typeof createSellSchema>) => {
     const finalProducts = [];
     for (let i = 0; i < values.products.length; i++) {
+      const imei = values.products[0].imeis.map((item) => item.imei);
       finalProducts.push({
         id: values.products[i].id,
         quantity: values.products[i].quantity,
         unit_amount: values.products[i].unit_amount,
+        imei: imei,
       });
     }
     const finalValue = {
@@ -167,7 +176,6 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
   });
 
   const getProductById = (productId: number) => {
-    console.log(productId);
     return products.find((product) => product.id === productId);
   };
 
@@ -227,6 +235,37 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
             {/* Dynamic Products Table */}
             {selectedProducts.length > 0 && (
               <div className="mt-4">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 ">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="mb-2">
+                      {/* EMI Multi-Select */}
+                      <p className="font-semibold">{field.name} IMEIs</p>
+                      <Select2
+                        isMulti
+                        options={
+                          selectedProducts[index].imeis?.map((item) => ({
+                            label: item.imei,
+                            value: item.imei,
+                          })) || []
+                        }
+                        styles={customStyles}
+                        onChange={(selected) => {
+                          const quantity = selected?.length || 0;
+                          // Update quantity automatically
+                          form.setValue(`products.${index}.quantity`, quantity);
+
+                          const unit_amount = form.getValues(
+                            `products.${index}.unit_amount`
+                          );
+                          form.setValue(
+                            `products.${index}.total_amount`,
+                            quantity * unit_amount
+                          );
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
                 <table className="min-w-full border">
                   <thead className="bg-gray-100">
                     <tr>
@@ -276,22 +315,7 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
                                         valueAsNumber: true, // Converts the input value to a number
                                       }
                                     )}
-                                    onChange={(e) => {
-                                      const quantity =
-                                        parseFloat(e.target.value) || 0;
-                                      form.setValue(
-                                        `products.${index}.quantity`,
-                                        quantity
-                                      );
-                                      const unit_amount = form.getValues(
-                                        `products.${index}.unit_amount`
-                                      );
-                                      form.setValue(
-                                        `products.${index}.total_amount`,
-                                        quantity * unit_amount
-                                      );
-                                    }}
-                                    onWheel={(e) => e.currentTarget.blur()}
+                                    disabled
                                   />
                                 </FormControl>
                                 <FormMessage />

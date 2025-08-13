@@ -1,3 +1,5 @@
+import { PaymentStatus } from "../purchases/types";
+
 export type Sell = {
   id: number;
   invoice_id: string;
@@ -17,38 +19,31 @@ export type Sell = {
     name: string;
     email: string;
   };
-  items: [
-    {
+  items: {
+    id: number;
+    quantity: number;
+    total_amount: string;
+    unit_amount: string;
+    imei: string | null;
+    product: {
       id: number;
+      slug: string;
+      name: string;
       quantity: number;
-      total_amount: string;
-      unit_amount: string;
-      product: {
+      sell_price: string | null;
+      image: string | null;
+      category: {
         id: number;
-        slug: string;
         name: string;
-        quantity: number;
-        sell_price: string | null;
         image: string | null;
-        category: {
-          id: number;
-          name: string;
-          image: string | null;
-        };
-        brand: {
-          id: number;
-          name: string;
-          image: string | null;
-        };
       };
-    }
-  ];
+      brand: {
+        id: number;
+        name: string;
+        image: string | null;
+      };
+    };
+  }[];
   created_at: string;
   updated_at: string;
 };
-
-export enum PaymentStatus {
-  PAID = "PAID",
-  DUE = "DUE",
-  UNPAID = "UNPAID",
-}

@@ -44,8 +44,9 @@ export const Invoice = ({ data }: InvoiceProps) => {
     pdf.text("SL", 20, 70);
     pdf.text("Name", 40, 70);
     pdf.text("Quantity", 100, 70);
-    pdf.text("Rate (BDT)", 130, 70);
-    pdf.text("Amount (BDT)", 160, 70);
+    pdf.text("IMEIs", 130, 70);
+    pdf.text("Rate (BDT)", 160, 70);
+    pdf.text("Amount (BDT)", 190, 70);
 
     const startY = 80;
     // Table Content
@@ -55,8 +56,9 @@ export const Invoice = ({ data }: InvoiceProps) => {
       pdf.text(`${index + 1}`, 20, yPos);
       pdf.text(`${item.product.brand.name} ${item.product.name}`, 40, yPos);
       pdf.text(`${item.quantity}`, 105, yPos);
-      pdf.text(item.unit_amount, 130, yPos);
-      pdf.text(item.total_amount, 160, yPos);
+      pdf.text(item.imei || "", 130, yPos);
+      pdf.text(item.unit_amount, 160, yPos);
+      pdf.text(item.total_amount, 190, yPos);
     });
 
     // After the table, update the Y position for additional sections

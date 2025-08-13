@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, InfoIcon } from "lucide-react";
 
@@ -133,6 +133,7 @@ export const CreatePurchaseForm = ({
         quantity: values.products[i].quantity,
         price: values.products[i].price,
         sell_price: values.products[i].sell,
+        imei: values.products[i].imei,
       });
     }
     const finalValue = {
@@ -369,7 +370,6 @@ export const CreatePurchaseForm = ({
                   <thead className="bg-gray-100">
                     <tr>
                       <th className="px-4 py-2 border">Product Name</th>
-                      {/* <th className="px-4 py-2 border">IMEI/SN Number</th> */}
                       <th className="px-4 py-2 border">Quantity</th>
                       <th className="px-4 py-2 border">Price</th>
                       <th className="px-4 py-2 border">Profit Margin (%)</th>
@@ -378,203 +378,212 @@ export const CreatePurchaseForm = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {fields.map((field, index) => (
-                      <tr key={field.id}>
-                        <td className="px-4 py-2 border">{field.name}</td>
+                    {fields.map((field, index) => {
+                      const quantity =
+                        form.watch(`products.${index}.quantity`) || 0;
+                      return (
+                        <Fragment key={field.id}>
+                          <tr>
+                            <td className="px-4 py-2 border">{field.name}</td>
+                            <td className="px-4 py-2 border">
+                              <FormField
+                                name={`products.${index}.quantity`}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        placeholder="Enter quantity"
+                                        {...form.register(
+                                          `products.${index}.quantity`,
+                                          {
+                                            valueAsNumber: true, // Converts the input value to a number
+                                          }
+                                        )}
+                                        onWheel={(e) => e.currentTarget.blur()}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </td>
+                            <td className="px-4 py-2 border">
+                              <FormField
+                                name={`products.${index}.price`}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        placeholder="Enter price"
+                                        {...form.register(
+                                          `products.${index}.price`,
+                                          {
+                                            valueAsNumber: true, // Converts the input value to a number
+                                            setValueAs: (value) =>
+                                              value === "" ? 0 : value,
+                                          }
+                                        )}
+                                        onChange={(e) => {
+                                          const newPrice =
+                                            parseFloat(e.target.value) || 0;
+                                          const profit =
+                                            form.getValues(
+                                              `products.${index}.profit`
+                                            ) || 0;
+                                          form.setValue(
+                                            `products.${index}.price`,
+                                            newPrice
+                                          );
+                                          form.setValue(
+                                            `products.${index}.sell`,
+                                            newPrice + (newPrice * profit) / 100
+                                          );
+                                        }}
+                                        onWheel={(e) => e.currentTarget.blur()}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </td>
 
-                        <td className="px-4 py-2 border">
-                          <FormField
-                            name={`products.${index}.quantity`}
-                            control={form.control}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    type="number"
-                                    placeholder="Enter quantity"
-                                    {...form.register(
-                                      `products.${index}.quantity`,
-                                      {
-                                        valueAsNumber: true, // Converts the input value to a number
-                                      }
-                                    )}
-                                    onWheel={(e) => e.currentTarget.blur()}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        <td className="px-4 py-2 border">
-                          <FormField
-                            name={`products.${index}.price`}
-                            control={form.control}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    type="number"
-                                    placeholder="Enter price"
-                                    {...form.register(
-                                      `products.${index}.price`,
-                                      {
-                                        valueAsNumber: true, // Converts the input value to a number
-                                        setValueAs: (value) =>
-                                          value === "" ? 0 : value,
-                                      }
-                                    )}
-                                    onChange={(e) => {
-                                      const newPrice =
-                                        parseFloat(e.target.value) || 0;
-                                      const profit =
-                                        form.getValues(
-                                          `products.${index}.profit`
-                                        ) || 0;
-                                      form.setValue(
-                                        `products.${index}.price`,
-                                        newPrice
-                                      );
-                                      form.setValue(
-                                        `products.${index}.sell`,
-                                        newPrice + (newPrice * profit) / 100
-                                      );
-                                    }}
-                                    onWheel={(e) => e.currentTarget.blur()}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
+                            <td className="px-4 py-2 border">
+                              <FormField
+                                name={`products.${index}.profit`}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        placeholder="Enter profit"
+                                        {...form.register(
+                                          `products.${index}.profit`,
+                                          {
+                                            valueAsNumber: true, // Converts the input value to a number
+                                            setValueAs: (value) =>
+                                              value === "" ? 0 : value,
+                                          }
+                                        )}
+                                        onChange={(e) => {
+                                          const newProfit =
+                                            parseFloat(e.target.value) || 0;
+                                          const price =
+                                            form.getValues(
+                                              `products.${index}.price`
+                                            ) || 0;
+                                          form.setValue(
+                                            `products.${index}.profit`,
+                                            newProfit
+                                          );
+                                          form.setValue(
+                                            `products.${index}.sell`,
+                                            price + (price * newProfit) / 100
+                                          );
+                                        }}
+                                        onWheel={(e) => e.currentTarget.blur()}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </td>
+                            <td className="px-4 py-2 border">
+                              <FormField
+                                name={`products.${index}.sell`}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        type="number"
+                                        placeholder="Enter sell"
+                                        {...form.register(
+                                          `products.${index}.sell`,
+                                          {
+                                            valueAsNumber: true,
+                                            setValueAs: (value) =>
+                                              value === "" ? 0 : value,
+                                          }
+                                        )}
+                                        disabled
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </td>
+                            <td className="px-4 py-2 border">
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                onClick={() => remove(index)}
+                              >
+                                Delete
+                              </Button>
+                            </td>
+                          </tr>
+                          {/* IMEI Section (New Row) */}
+                          {quantity > 0 && (
+                            <tr>
+                              <td
+                                className="px-4 py-2 border text-right"
+                                colSpan={6}
+                              >
+                                <div className="flex flex-col gap-2">
+                                  {Array.from({
+                                    length: Math.ceil(quantity / 3),
+                                  }).map((_, rowIndex) => (
+                                    <div key={rowIndex} className="flex gap-2">
+                                      {Array.from({ length: 3 }).map(
+                                        (_, colIndex) => {
+                                          const imeiIndex =
+                                            rowIndex * 3 + colIndex;
+                                          if (imeiIndex >= quantity)
+                                            return null;
 
-                        <td className="px-4 py-2 border">
-                          <FormField
-                            name={`products.${index}.price`}
-                            control={form.control}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    type="number"
-                                    placeholder="Enter price"
-                                    {...form.register(
-                                      `products.${index}.price`,
-                                      {
-                                        valueAsNumber: true, // Converts the input value to a number
-                                        setValueAs: (value) =>
-                                          value === "" ? 0 : value,
-                                      }
-                                    )}
-                                    onChange={(e) => {
-                                      const newPrice =
-                                        parseFloat(e.target.value) || 0;
-                                      const profit =
-                                        form.getValues(
-                                          `products.${index}.profit`
-                                        ) || 0;
-                                      form.setValue(
-                                        `products.${index}.price`,
-                                        newPrice
-                                      );
-                                      form.setValue(
-                                        `products.${index}.sell`,
-                                        newPrice + (newPrice * profit) / 100
-                                      );
-                                    }}
-                                    onWheel={(e) => e.currentTarget.blur()}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        <td className="px-4 py-2 border">
-                          <FormField
-                            name={`products.${index}.profit`}
-                            control={form.control}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    type="number"
-                                    placeholder="Enter profit"
-                                    {...form.register(
-                                      `products.${index}.profit`,
-                                      {
-                                        valueAsNumber: true, // Converts the input value to a number
-                                        setValueAs: (value) =>
-                                          value === "" ? 0 : value,
-                                      }
-                                    )}
-                                    onChange={(e) => {
-                                      const newProfit =
-                                        parseFloat(e.target.value) || 0;
-                                      const price =
-                                        form.getValues(
-                                          `products.${index}.price`
-                                        ) || 0;
-                                      form.setValue(
-                                        `products.${index}.profit`,
-                                        newProfit
-                                      );
-                                      form.setValue(
-                                        `products.${index}.sell`,
-                                        price + (price * newProfit) / 100
-                                      );
-                                    }}
-                                    onWheel={(e) => e.currentTarget.blur()}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        <td className="px-4 py-2 border">
-                          <FormField
-                            name={`products.${index}.sell`}
-                            control={form.control}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    type="number"
-                                    placeholder="Enter sell"
-                                    {...form.register(
-                                      `products.${index}.sell`,
-                                      {
-                                        valueAsNumber: true, // Converts the input value to a number
-                                        setValueAs: (value) =>
-                                          value === "" ? 0 : value,
-                                      }
-                                    )}
-                                    disabled
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        <td className="px-4 py-2 border">
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            onClick={() => remove(index)}
-                          >
-                            Delete
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
+                                          return (
+                                            <FormField
+                                              key={imeiIndex}
+                                              name={`products.${index}.imei.${imeiIndex}`}
+                                              control={form.control}
+                                              render={({ field }) => (
+                                                <FormItem className="flex-1">
+                                                  <FormControl>
+                                                    <Input
+                                                      {...field}
+                                                      placeholder={`Enter IMEI/SN #${
+                                                        imeiIndex + 1
+                                                      }`}
+                                                    />
+                                                  </FormControl>
+                                                  <FormMessage />
+                                                </FormItem>
+                                              )}
+                                            />
+                                          );
+                                        }
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
                 <div className="text-end mt-3">

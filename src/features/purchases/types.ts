@@ -27,6 +27,7 @@ export type Purchase = {
       quantity: number;
       total_amount: string;
       unit_amount: string;
+      imei: string | null;
       product: {
         id: number;
         slug: string;

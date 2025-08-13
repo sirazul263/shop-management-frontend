@@ -28,6 +28,12 @@ export const createSellSchema = z
             .number()
             .positive({ message: "Product Price is required" }),
           total_amount: z.number().optional(),
+          imeis: z.array(
+            z.object({
+              id: z.number(),
+              imei: z.string(),
+            })
+          ),
         })
       )
       .min(1, { message: "At least one product is required" }),
@@ -43,5 +49,17 @@ export const createSellSchema = z
     {
       message: "Discount amount is required when a discount type is provided",
       path: ["discount_amount"],
+    }
+  )
+  .refine(
+    (data) => {
+      // IMEI count must match quantity for each product
+      return data.products.every(
+        (p) => Array.isArray(p.imeis) && p.imeis.length === p.quantity
+      );
+    },
+    {
+      message: "Number of IMEI/SN entries must match product quantity",
+      path: ["products"],
     }
   );

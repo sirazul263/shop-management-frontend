@@ -118,7 +118,23 @@ export const columns: ColumnDef<Sell>[] = [
                         className="col-span-2 h-8"
                         disabled
                       />
-                    </div>{" "}
+                    </div>
+                    {item.imei && (
+                      <div className="grid grid-cols-3 items-center gap-4">
+                        <Label htmlFor="maxWidth">IMEIs</Label>
+                        <div>
+                          {item.imei.split(",").map((imei) => (
+                            <Input
+                              key={imei}
+                              id="maxWidth"
+                              defaultValue={imei}
+                              className="col-span-4 h-8 mb-2"
+                              disabled
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <div className="grid grid-cols-3 items-center gap-4">
                       <Label htmlFor="maxWidth">Total Price</Label>
                       <Input

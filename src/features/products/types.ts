@@ -8,6 +8,10 @@ export type Product = {
   price: string;
   sell_price: number;
   quantity: number;
+  imeis: {
+    id: number;
+    imei: string;
+  }[];
   user: {
     id: number;
     name: string;

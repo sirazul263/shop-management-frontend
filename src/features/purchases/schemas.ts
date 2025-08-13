@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 export const createPurchaseSchema = z
   .object({
     purchase_date: z.coerce.date(),
@@ -24,13 +25,16 @@ export const createPurchaseSchema = z
           price: z.number().positive({ message: "Product Price is required" }),
           profit: z.number().optional(),
           sell: z.number().optional(),
+          imei: z
+            .array(z.string().min(1, { message: "IMEI/SN number is required" }))
+            .optional(),
         })
       )
       .min(1, { message: "At least one product is required" }),
   })
   .refine(
     (data) => {
-      // If `discount_type` is provided, `discount_amount` must be provided as well
+      // Discount type validation
       if (data.discount_type && data.discount_amount === undefined) {
         return false;
       }
@@ -39,5 +43,17 @@ export const createPurchaseSchema = z
     {
       message: "Discount amount is required when a discount type is provided",
       path: ["discount_amount"],
+    }
+  )
+  .refine(
+    (data) => {
+      // IMEI count must match quantity for each product
+      return data.products.every(
+        (p) => Array.isArray(p.imei) && p.imei.length === p.quantity
+      );
+    },
+    {
+      message: "Number of IMEI/SN entries must match product quantity",
+      path: ["products"],
     }
   );
