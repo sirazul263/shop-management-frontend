@@ -33,16 +33,7 @@ export const StoreMain = ({ stores }: StoreCardProps) => {
         {stores.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
             {stores.map((store: Store) => (
-              <StoreCard
-                key={store.id}
-                id={store.id}
-                image={store.image}
-                name={store.name}
-                description={store.description}
-                address={store.address}
-                phone={store.phone}
-                status={store.status}
-              />
+              <StoreCard key={store.id} store={store} />
             ))}
           </div>
         ) : (

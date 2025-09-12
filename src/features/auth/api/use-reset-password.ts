@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getErrorMessage, getMessage } from "@/lib/utils";
 import axiosInstance from "@/lib/axiosInstance";
-interface LoginPayload {
+interface ResetPayload {
   email: string;
   token: string;
   new_password: string;
@@ -12,7 +12,7 @@ interface ResponseType {
   message: string;
 }
 export const useResetPassword = () => {
-  const mutation = useMutation<ResponseType, Error, LoginPayload>({
+  const mutation = useMutation<ResponseType, Error, ResetPayload>({
     mutationFn: async (payload) => {
       const response = await axiosInstance.post(`reset-password`, payload);
       if (response.status !== 200 || response.data.status !== 1) {

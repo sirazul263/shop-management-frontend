@@ -10,26 +10,14 @@ import {
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import Image from "next/image";
-
+import { StoreActions } from "./store-actions";
+import { Store } from "../types";
+import { SettingsIcon } from "lucide-react";
 interface StoreCardProps {
-  id: string;
-  image: string | null;
-  name: string;
-  description: string;
-  address: string;
-  phone: string;
-  status: string;
+  store: Store;
 }
-
-export const StoreCard = ({
-  id,
-  image,
-  name,
-  description,
-  address,
-  phone,
-  status,
-}: StoreCardProps) => {
+export const StoreCard = ({ store }: StoreCardProps) => {
+  const { id, image, name, description, address, phone, status } = store;
   const router = useRouter();
   // Navigate to store details page when clicked
   const handleSelect = () => {
@@ -68,7 +56,15 @@ export const StoreCard = ({
 
       {/* Content with Store Info */}
       <CardContent className="p-4">
-        <h3 className="text-lg font-semibold">{name}</h3>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">{name}</h3>
+          <StoreActions data={store}>
+            <Button variant="ghost" className="size-8 p-0">
+              <SettingsIcon className="size-4" />
+            </Button>
+          </StoreActions>
+        </div>
+
         <p className="text-sm text-muted-foreground mt-1">{description}</p>
         <p className="text-sm mt-3">
           <span className="font-semibold">Address: </span>
