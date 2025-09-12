@@ -84,12 +84,12 @@ export const CreatePurchaseForm = ({
       notes: "",
     },
   });
-
   const { fields, remove } = useFieldArray({
     control: form.control,
     name: "products",
   });
   const selectedProducts = form.watch("products");
+
   // Function to handle product selection
   const handleProductChange = (selectedOptions: MultiValue<OptionType>) => {
     const selectedValues = selectedOptions ? [...selectedOptions] : []; // Convert to mutable array
@@ -105,13 +105,14 @@ export const CreatePurchaseForm = ({
         return {
           id: option.value,
           name: option.label,
-          quantity: 1,
+          quantity: 0,
           price: productDetails ? Number(productDetails.price) : 0,
           profit: 25,
           sell: productDetails
             ? Number(productDetails.price) +
               (Number(productDetails.price) * 25) / 100
             : 0,
+          imei: [],
         };
       });
 
@@ -126,16 +127,14 @@ export const CreatePurchaseForm = ({
   };
 
   const onSubmit = async (values: z.infer<typeof createPurchaseSchema>) => {
-    const finalProducts = [];
-    for (let i = 0; i < values.products.length; i++) {
-      finalProducts.push({
-        id: values.products[i].id,
-        quantity: values.products[i].quantity,
-        price: values.products[i].price,
-        sell_price: values.products[i].sell,
-        imei: values.products[i].imei,
-      });
-    }
+    const finalProducts = values.products.map((p) => ({
+      id: p.id,
+      quantity: p.imei?.length || 0,
+      price: p.price,
+      sell_price: p.sell,
+      imei: p.imei,
+    }));
+
     const finalValue = {
       store_id: storeId,
       supplier_id: values.supplier_id,
@@ -161,18 +160,16 @@ export const CreatePurchaseForm = ({
     }
   };
 
-  const supplierOptions: { value: string; label: string }[] = [];
-  suppliers.forEach((supplier) => {
-    supplierOptions.push({ value: `${supplier.id}`, label: supplier.name });
-  });
+  const supplierOptions = suppliers.map((s) => ({
+    value: `${s.id}`,
+    label: s.name,
+  }));
 
-  const productOptions: { value: string; label: string }[] = [];
-  products.forEach((product) => {
-    productOptions.push({
-      value: `${product.id}`,
-      label: `${product.brand.name} ${product.name}`,
-    });
-  });
+  const productOptions = products.map((p) => ({
+    value: `${p.id}`,
+    label: p.name,
+  }));
+
   //Calculate the total price
   let total = 0;
   selectedProducts.forEach((product) => {
@@ -328,9 +325,10 @@ export const CreatePurchaseForm = ({
             </div>
             <DottedSeparator className="py-3" />
 
-            <div className="grid md:grid-cols-12  gap-4">
+            {/* Products Section */}
+            <div className="grid md:grid-cols-12 gap-4">
               <div className="col-span-7 flex flex-col justify-center gap-y-4">
-                <div className="grid md:grid-cols-12  gap-4">
+                <div className="grid md:grid-cols-12 gap-4">
                   <div className="col-span-6">
                     <FormLabel>
                       Products <span className="text-red-700">*</span>
@@ -349,12 +347,12 @@ export const CreatePurchaseForm = ({
                       isMulti
                     />
                   </div>
-                  <div className="col-span-4 ">
+                  <div className="col-span-4">
                     <div
-                      className="flex items-center  cursor-pointer pt-10"
+                      className="flex items-center cursor-pointer pt-10"
                       onClick={() => router.push(`/${storeId}/products/create`)}
                     >
-                      <p className="text-xs uppercase font-bold text-neutral-500 ">
+                      <p className="text-xs uppercase font-bold text-neutral-500">
                         Add Product
                       </p>
                       <RiAddCircleFill className="size-5 ms-2 text-neutral-500 cursor-pointer hover:opacity-75 transition" />
@@ -363,6 +361,7 @@ export const CreatePurchaseForm = ({
                 </div>
               </div>
             </div>
+
             {/* Dynamic Products Table */}
             {selectedProducts.length > 0 && (
               <div className="mt-4">
@@ -378,212 +377,185 @@ export const CreatePurchaseForm = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {fields.map((field, index) => {
-                      const quantity =
-                        form.watch(`products.${index}.quantity`) || 0;
-                      return (
-                        <Fragment key={field.id}>
-                          <tr>
-                            <td className="px-4 py-2 border">{field.name}</td>
-                            <td className="px-4 py-2 border">
-                              <FormField
-                                name={`products.${index}.quantity`}
-                                control={form.control}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        type="number"
-                                        placeholder="Enter quantity"
-                                        {...form.register(
-                                          `products.${index}.quantity`,
-                                          {
-                                            valueAsNumber: true, // Converts the input value to a number
-                                          }
-                                        )}
-                                        onWheel={(e) => e.currentTarget.blur()}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </td>
-                            <td className="px-4 py-2 border">
-                              <FormField
-                                name={`products.${index}.price`}
-                                control={form.control}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        type="number"
-                                        placeholder="Enter price"
-                                        {...form.register(
+                    {fields.map((field, index) => (
+                      <Fragment key={field.id}>
+                        <tr>
+                          <td className="px-4 py-2 border">{field.name}</td>
+                          <td className="px-4 py-2 border">
+                            {form.watch(`products.${index}.quantity`) || 0}
+                          </td>
+                          <td className="px-4 py-2 border">
+                            <FormField
+                              name={`products.${index}.price`}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      type="number"
+                                      onChange={(e) => {
+                                        const newPrice =
+                                          parseFloat(e.target.value) || 0;
+                                        const profit =
+                                          form.getValues(
+                                            `products.${index}.profit`
+                                          ) || 0;
+                                        form.setValue(
                                           `products.${index}.price`,
-                                          {
-                                            valueAsNumber: true, // Converts the input value to a number
-                                            setValueAs: (value) =>
-                                              value === "" ? 0 : value,
-                                          }
-                                        )}
-                                        onChange={(e) => {
-                                          const newPrice =
-                                            parseFloat(e.target.value) || 0;
-                                          const profit =
-                                            form.getValues(
-                                              `products.${index}.profit`
-                                            ) || 0;
-                                          form.setValue(
-                                            `products.${index}.price`,
-                                            newPrice
-                                          );
-                                          form.setValue(
-                                            `products.${index}.sell`,
-                                            newPrice + (newPrice * profit) / 100
-                                          );
-                                        }}
-                                        onWheel={(e) => e.currentTarget.blur()}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </td>
-
-                            <td className="px-4 py-2 border">
-                              <FormField
-                                name={`products.${index}.profit`}
-                                control={form.control}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        type="number"
-                                        placeholder="Enter profit"
-                                        {...form.register(
-                                          `products.${index}.profit`,
-                                          {
-                                            valueAsNumber: true, // Converts the input value to a number
-                                            setValueAs: (value) =>
-                                              value === "" ? 0 : value,
-                                          }
-                                        )}
-                                        onChange={(e) => {
-                                          const newProfit =
-                                            parseFloat(e.target.value) || 0;
-                                          const price =
-                                            form.getValues(
-                                              `products.${index}.price`
-                                            ) || 0;
-                                          form.setValue(
-                                            `products.${index}.profit`,
-                                            newProfit
-                                          );
-                                          form.setValue(
-                                            `products.${index}.sell`,
-                                            price + (price * newProfit) / 100
-                                          );
-                                        }}
-                                        onWheel={(e) => e.currentTarget.blur()}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </td>
-                            <td className="px-4 py-2 border">
-                              <FormField
-                                name={`products.${index}.sell`}
-                                control={form.control}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        type="number"
-                                        placeholder="Enter sell"
-                                        {...form.register(
+                                          newPrice
+                                        );
+                                        form.setValue(
                                           `products.${index}.sell`,
-                                          {
-                                            valueAsNumber: true,
-                                            setValueAs: (value) =>
-                                              value === "" ? 0 : value,
-                                          }
-                                        )}
-                                        disabled
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </td>
-                            <td className="px-4 py-2 border">
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                onClick={() => remove(index)}
-                              >
-                                Delete
-                              </Button>
-                            </td>
-                          </tr>
-                          {/* IMEI Section (New Row) */}
-                          {quantity > 0 && (
-                            <tr>
-                              <td
-                                className="px-4 py-2 border text-right"
-                                colSpan={6}
-                              >
-                                <div className="flex flex-col gap-2">
-                                  {Array.from({
-                                    length: Math.ceil(quantity / 3),
-                                  }).map((_, rowIndex) => (
-                                    <div key={rowIndex} className="flex gap-2">
-                                      {Array.from({ length: 3 }).map(
-                                        (_, colIndex) => {
-                                          const imeiIndex =
-                                            rowIndex * 3 + colIndex;
-                                          if (imeiIndex >= quantity)
-                                            return null;
+                                          newPrice + (newPrice * profit) / 100
+                                        );
+                                      }}
+                                      onWheel={(e) => e.currentTarget.blur()}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </td>
+                          <td className="px-4 py-2 border">
+                            <FormField
+                              name={`products.${index}.profit`}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      type="number"
+                                      onChange={(e) => {
+                                        const newProfit =
+                                          parseFloat(e.target.value) || 0;
+                                        const price =
+                                          form.getValues(
+                                            `products.${index}.price`
+                                          ) || 0;
+                                        form.setValue(
+                                          `products.${index}.profit`,
+                                          newProfit
+                                        );
+                                        form.setValue(
+                                          `products.${index}.sell`,
+                                          price + (price * newProfit) / 100
+                                        );
+                                      }}
+                                      onWheel={(e) => e.currentTarget.blur()}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </td>
+                          <td className="px-4 py-2 border">
+                            <FormField
+                              name={`products.${index}.sell`}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input {...field} type="number" disabled />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </td>
+                          <td className="px-4 py-2 border">
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              onClick={() => remove(index)}
+                            >
+                              Delete
+                            </Button>
+                          </td>
+                        </tr>
 
-                                          return (
-                                            <FormField
-                                              key={imeiIndex}
-                                              name={`products.${index}.imei.${imeiIndex}`}
-                                              control={form.control}
-                                              render={({ field }) => (
-                                                <FormItem className="flex-1">
-                                                  <FormControl>
-                                                    <Input
-                                                      {...field}
-                                                      placeholder={`Enter IMEI/SN #${
-                                                        imeiIndex + 1
-                                                      }`}
-                                                    />
-                                                  </FormControl>
-                                                  <FormMessage />
-                                                </FormItem>
-                                              )}
-                                            />
+                        {/* IMEI Section */}
+                        <tr>
+                          <td
+                            className="px-4 py-2 border text-right"
+                            colSpan={1}
+                          >
+                            <div className="flex flex-col gap-2">
+                              <p className="text-start text-sm">
+                                Enter IMEI Numbers
+                              </p>
+                              <Input
+                                placeholder="Enter IMEI and press Enter"
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    const value = (
+                                      e.target as HTMLInputElement
+                                    ).value.trim();
+                                    if (value) {
+                                      const currentImeis =
+                                        form.getValues(
+                                          `products.${index}.imei`
+                                        ) || [];
+
+                                      form.setValue(`products.${index}.imei`, [
+                                        ...currentImeis,
+                                        value,
+                                      ]);
+
+                                      form.setValue(
+                                        `products.${index}.quantity`,
+                                        currentImeis.length + 1
+                                      );
+
+                                      (e.target as HTMLInputElement).value = "";
+                                    }
+                                  }
+                                }}
+                              />
+
+                              {/* Display added IMEIs */}
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {form
+                                  .watch(`products.${index}.imei`)
+                                  ?.map((imei: string, imeiIndex: number) => (
+                                    <div
+                                      key={imeiIndex}
+                                      className="flex items-center bg-gray-200 px-2 py-1 rounded-md text-sm"
+                                    >
+                                      <span>{imei}</span>
+                                      <button
+                                        type="button"
+                                        className="ml-2 text-red-600 hover:text-red-800"
+                                        onClick={() => {
+                                          const currentImeis =
+                                            form.getValues(
+                                              `products.${index}.imei`
+                                            ) || [];
+                                          const updated = currentImeis.filter(
+                                            (_: string, i: number) =>
+                                              i !== imeiIndex
                                           );
-                                        }
-                                      )}
+                                          form.setValue(
+                                            `products.${index}.imei`,
+                                            updated
+                                          );
+                                          form.setValue(
+                                            `products.${index}.quantity`,
+                                            updated.length
+                                          );
+                                        }}
+                                      >
+                                        ×
+                                      </button>
                                     </div>
                                   ))}
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </Fragment>
-                      );
-                    })}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </Fragment>
+                    ))}
                   </tbody>
                 </table>
                 <div className="text-end mt-3">

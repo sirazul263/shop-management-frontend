@@ -22,7 +22,7 @@ export const StoreMain = ({ stores }: StoreCardProps) => {
           </div>
           <Button onClick={open}>Create New Store</Button>
         </nav>
-        <div className="flex flex-col items-center justify-center pt-4 md:pt-14">
+        <div className="flex flex-col items-center justify-center pt-4 md:py-14">
           <h1 className="text-4xl font-bold text-center text-neutral-900">
             Amirul Telecom
           </h1>
@@ -31,13 +31,13 @@ export const StoreMain = ({ stores }: StoreCardProps) => {
           </p>
         </div>
         {stores.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
+          <div className="max-w-5xl mx-auto flex flex-wrap justify-center gap-6 p-4">
             {stores.map((store: Store) => (
               <StoreCard key={store.id} store={store} />
             ))}
           </div>
         ) : (
-          <div className="flex justify-center items-center">
+          <div className="flex justify-center items-center ">
             <div className="flex flex-col items-center">
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <AlertCircle className="w-12 h-12 text-gray-400" />
@@ -48,7 +48,7 @@ export const StoreMain = ({ stores }: StoreCardProps) => {
                   Please create a new store to continue
                 </p>
               </div>
-              <Button onClick={open}>Create New Store</Button>{" "}
+              <Button onClick={open}>Create New Store</Button>
             </div>
           </div>
         )}

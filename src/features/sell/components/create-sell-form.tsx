@@ -165,7 +165,7 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
     if (product.quantity > 0) {
       productOptions.push({
         value: `${product.id}`,
-        label: `${product.brand.name} ${product.name}`,
+        label: product.name,
       });
     }
   });
