@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
 import {
   Select,
   SelectContent,
@@ -22,8 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, InfoIcon } from "lucide-react";
 import { customStyles, getErrorMessage, numberWithCommas } from "@/lib/utils";
@@ -49,19 +47,20 @@ interface OptionType {
   value: string;
   label: string;
 }
+
 export const CreateSellForm = ({ products }: CreateSellFormProps) => {
   const router = useRouter();
   const storeId = useStoreId();
   const { mutateAsync, isPending } = useCreateSell();
   const [discountAmount, setDiscountAmount] = useState(0);
-
   const [error, setError] = useState<string | null>(null);
+
   const form = useForm<z.infer<typeof createSellSchema>>({
     resolver: zodResolver(createSellSchema),
     defaultValues: {
-      name: "",
-      phone: "",
-      address: "",
+      name: "Cash",
+      phone: "1762612284",
+      address: "GOALANDO BAZAR",
       products: [],
       discount_type: "",
       discount_amount: 0,
@@ -78,61 +77,50 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
     control: form.control,
     name: "products",
   });
+
   const selectedProducts = form.watch("products");
-  // Function to handle product selection
+
+  // Handle product selection
   const handleProductChange = (selectedOptions: MultiValue<OptionType>) => {
     const selectedValues = selectedOptions || [];
+    const existingProductIds = selectedProducts.map((p) => p.id);
 
-    // Assuming you have a `products` array that contains product details, including price
-    const existingProductIds = selectedProducts.map((product) => product.id);
-
-    // Add new products with default price from `products` array
     const newProducts = selectedValues
-      .filter((option) => !existingProductIds.includes(option.value))
-      .map((option) => {
+      .filter((opt) => !existingProductIds.includes(opt.value))
+      .map((opt) => {
         const productDetails = products.find(
-          (product) => `${product.id}` === option.value
+          (product) => `${product.id}` === opt.value
         );
 
         return {
-          id: option.value,
-          name: option.label,
+          id: opt.value,
+          name: opt.label,
           quantity: 0,
           unit_amount: productDetails ? Number(productDetails.sell_price) : 0,
           total_amount: productDetails ? Number(productDetails.sell_price) : 0,
-          imeis: productDetails
-            ? Array.isArray(productDetails.imeis)
-              ? productDetails.imeis.map((i) =>
-                  typeof i === "string" ? { id: 0, imei: i } : i
-                )
-              : []
-            : [],
+          availableImeis: productDetails?.imeis || [], // all possible IMEIs
+          imeis: [], // empty until user selects
         };
       });
 
-    // Sync table rows with selected products
     const updatedProducts = [
-      ...selectedProducts.filter((product) =>
-        selectedValues.find((option) => option.value === product.id)
+      ...selectedProducts.filter((p) =>
+        selectedValues.find((opt) => opt.value === p.id)
       ),
       ...newProducts,
     ];
 
-    // Update form state
     form.setValue("products", updatedProducts);
   };
 
   const onSubmit = async (values: z.infer<typeof createSellSchema>) => {
-    const finalProducts = [];
-    for (let i = 0; i < values.products.length; i++) {
-      const imei = values.products[0].imeis.map((item) => item.imei);
-      finalProducts.push({
-        id: values.products[i].id,
-        quantity: values.products[i].quantity,
-        unit_amount: values.products[i].unit_amount,
-        imei: imei,
-      });
-    }
+    const finalProducts = values.products.map((p) => ({
+      id: p.id,
+      quantity: p.quantity,
+      unit_amount: p.unit_amount,
+      imei: p.imeis.map((i) => i.imei), // only selected imeis
+    }));
+
     const finalValue = {
       store_id: storeId,
       name: values.name,
@@ -160,24 +148,43 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
     }
   };
 
-  const productOptions: { value: string; label: string }[] = [];
-  products.forEach((product) => {
-    if (product.quantity > 0) {
-      productOptions.push({
-        value: `${product.id}`,
-        label: product.name,
-      });
-    }
-  });
-  //Calculate the total price
+  const productOptions: OptionType[] = products
+    .filter((p) => p.quantity > 0)
+    .map((p) => ({
+      value: `${p.id}`,
+      label: p.name,
+    }));
+
+  // inside your component
+  const { watch } = form;
+  const discountType = watch("discount_type");
   let total = 0;
-  selectedProducts.forEach((product) => {
-    total += product.quantity * product.unit_amount;
+  selectedProducts.forEach((p) => {
+    total += p.quantity * p.unit_amount;
   });
 
-  const getProductById = (productId: number) => {
-    return products.find((product) => product.id === productId);
-  };
+  // calculate net total after discount
+  let netTotal = total;
+  if (discountType === "PERCENTAGE") {
+    netTotal = total - (total * discountAmount) / 100;
+  } else if (discountType === "FIXED") {
+    netTotal = total - discountAmount;
+  }
+
+  // auto-update when products/discount change
+  useEffect(() => {
+    const totalPaidDirty = form.formState.dirtyFields.total_paid;
+
+    if (!totalPaidDirty) {
+      form.setValue("total_paid", netTotal);
+    }
+
+    const currentPaid = form.getValues("total_paid");
+    form.setValue("due", netTotal - currentPaid);
+  }, [netTotal, form]);
+
+  const getProductById = (productId: number) =>
+    products.find((p) => p.id === productId);
 
   return (
     <Card className="w-full h-full border-none shadow-none">
@@ -187,71 +194,83 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
       <CardContent className="px-7">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
+            {/* Product Selector */}
             <div className="grid md:grid-cols-12  gap-4">
-              <div className="col-span-7 flex flex-col justify-center gap-y-4">
-                <div className="grid md:grid-cols-12  gap-4">
-                  <div className="col-span-7">
-                    <FormLabel>
-                      Products <span className="text-red-700">*</span>
-                    </FormLabel>
-                    <Select2
-                      options={productOptions}
-                      styles={customStyles}
-                      value={productOptions.filter((option) =>
-                        selectedProducts.some(
-                          (product) => product.id === option.value
-                        )
-                      )}
-                      onChange={handleProductChange}
-                      placeholder="Select products"
-                      isClearable
-                      isMulti
-                    />
-                  </div>
-                  <div className="col-span-4 ">
-                    <div
-                      className="flex items-center  cursor-pointer pt-10"
-                      onClick={() => router.push(`/${storeId}/products/create`)}
-                    >
-                      <p className="text-xs uppercase font-bold text-neutral-500 ">
-                        Add Product
-                      </p>
-                      <RiAddCircleFill className="size-5 ms-2 text-neutral-500 cursor-pointer hover:opacity-75 transition" />
-                    </div>
-                  </div>
+              <div className="col-span-4 flex flex-col justify-center gap-y-4">
+                <FormLabel>
+                  Products <span className="text-red-700">*</span>
+                </FormLabel>
+                <Select2
+                  options={productOptions}
+                  styles={customStyles}
+                  value={productOptions.filter((opt) =>
+                    selectedProducts.some((p) => p.id === opt.value)
+                  )}
+                  onChange={handleProductChange}
+                  placeholder="Select products"
+                  isClearable
+                  isMulti
+                />
+              </div>
+              <div className="col-span-4 ">
+                <div className=" pt-10">
+                  <button
+                    className="flex items-center text-xs uppercase font-bold text-neutral-500 "
+                    onClick={() => router.push(`/${storeId}/products/create`)}
+                  >
+                    Add Product
+                    <RiAddCircleFill className="size-5 ms-2 text-neutral-500 cursor-pointer hover:opacity-75 transition" />
+                  </button>
                 </div>
               </div>
-              <div className="col-span-5 flex flex-col justify-center gap-y-4">
-                <div className="text-end mt-3">
-                  <p className="font-semibold text-sm ">
-                    Total Items : {selectedProducts.length}
-                  </p>
-                  <p className="font-semibold text-sm ">
-                    Net Total Amount : ৳ {numberWithCommas(total)}
-                  </p>
-                </div>
+
+              <div className="col-span-4 text-end mt-3">
+                <p className="font-semibold text-sm ">
+                  Total Items : {selectedProducts.length}
+                </p>
+                <p className="font-semibold text-sm ">
+                  Net Total Amount : ৳ {numberWithCommas(total)}
+                </p>
               </div>
             </div>
+
             {/* Dynamic Products Table */}
             {selectedProducts.length > 0 && (
               <div className="mt-4">
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 ">
                   {fields.map((field, index) => (
                     <div key={field.id} className="mb-2">
-                      {/* EMI Multi-Select */}
                       <p className="font-semibold">{field.name} IMEIs</p>
                       <Select2
                         isMulti
                         options={
-                          selectedProducts[index].imeis?.map((item) => ({
-                            label: item.imei,
-                            value: item.imei,
-                          })) || []
+                          selectedProducts[index].availableImeis?.map(
+                            (item) => ({
+                              label: item.imei,
+                              value: String(item.id), // ensure value is a string
+                            })
+                          ) || []
+                        }
+                        value={
+                          selectedProducts[index].imeis?.map(
+                            (item: { id: number; imei: string }) => ({
+                              label: item.imei,
+                              value: String(item.id),
+                            })
+                          ) || []
                         }
                         styles={customStyles}
                         onChange={(selected) => {
-                          const quantity = selected?.length || 0;
-                          // Update quantity automatically
+                          const imeis =
+                            selected?.map((s) => ({
+                              id: Number(s.value), // convert id to number
+                              imei: s.label, // imei string from label
+                            })) || [];
+
+                          form.setValue(`products.${index}.imeis`, imeis);
+
+                          // update quantity based on selected imeis
+                          const quantity = imeis.length;
                           form.setValue(`products.${index}.quantity`, quantity);
 
                           const unit_amount = form.getValues(
@@ -266,6 +285,8 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
                     </div>
                   ))}
                 </div>
+
+                {/* Table */}
                 <table className="min-w-full border">
                   <thead className="bg-gray-100">
                     <tr>
@@ -279,7 +300,7 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
                   <tbody>
                     {fields.map((field, index) => (
                       <tr key={field.id}>
-                        <td className="px-4  border">
+                        <td className="px-4 border">
                           <div className="flex items-center">
                             <p className="line-clamp-1 pe-2">{field.name}</p>
                             <Popover>
@@ -299,97 +320,37 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
                           </div>
                         </td>
                         <td className="px-4 py-2 border">
-                          <FormField
-                            name={`products.${index}.quantity`}
-                            control={form.control}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    type="number"
-                                    placeholder="Enter quantity"
-                                    {...form.register(
-                                      `products.${index}.quantity`,
-                                      {
-                                        valueAsNumber: true, // Converts the input value to a number
-                                      }
-                                    )}
-                                    disabled
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                          <Input
+                            type="number"
+                            value={selectedProducts[index].quantity}
+                            disabled
                           />
                         </td>
                         <td className="px-4 py-2 border">
-                          <FormField
-                            name={`products.${index}.unit_amount`}
-                            control={form.control}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    type="number"
-                                    placeholder="Enter unit amount"
-                                    {...form.register(
-                                      `products.${index}.unit_amount`,
-                                      {
-                                        valueAsNumber: true, // Converts the input value to a number
-                                        setValueAs: (value) =>
-                                          value === "" ? 0 : value,
-                                      }
-                                    )}
-                                    onChange={(e) => {
-                                      const newPrice =
-                                        parseFloat(e.target.value) || 0;
-                                      form.setValue(
-                                        `products.${index}.unit_amount`,
-                                        newPrice
-                                      );
-                                      const quantity = form.getValues(
-                                        `products.${index}.quantity`
-                                      );
-                                      form.setValue(
-                                        `products.${index}.total_amount`,
-                                        newPrice * quantity
-                                      );
-                                    }}
-                                    onWheel={(e) => e.currentTarget.blur()}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                          <Input
+                            type="number"
+                            value={selectedProducts[index].unit_amount}
+                            onChange={(e) => {
+                              const newPrice = parseFloat(e.target.value) || 0;
+                              form.setValue(
+                                `products.${index}.unit_amount`,
+                                newPrice
+                              );
+                              const quantity = form.getValues(
+                                `products.${index}.quantity`
+                              );
+                              form.setValue(
+                                `products.${index}.total_amount`,
+                                newPrice * quantity
+                              );
+                            }}
                           />
                         </td>
                         <td className="px-4 py-2 border">
-                          <FormField
-                            name={`products.${index}.total_amount`}
-                            control={form.control}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    type="number"
-                                    placeholder="0"
-                                    {...form.register(
-                                      `products.${index}.total_amount`,
-                                      {
-                                        valueAsNumber: true, // Converts the input value to a number
-                                        setValueAs: (value) =>
-                                          value === "" ? 0 : value,
-                                      }
-                                    )}
-                                    disabled
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                          <Input
+                            type="number"
+                            value={selectedProducts[index].total_amount}
+                            disabled
                           />
                         </td>
                         <td className="px-4 py-2 border">
@@ -407,6 +368,7 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
                 </table>
               </div>
             )}
+
             <DottedSeparator className="py-3" />
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 ">
               <div className="flex flex-col gap-y-4">
@@ -603,23 +565,17 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Total Paid <span className="text-red-700">*</span>{" "}
+                        Total Paid <span className="text-red-700">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="number"
                           placeholder="Enter total paid"
-                          {...form.register(`total_paid`, {
-                            valueAsNumber: true, // Converts the input value to a number
-                          })}
                           onChange={(e) => {
                             const newValue = parseFloat(e.target.value) || 0;
-                            form.setValue("total_paid", newValue);
-                            form.setValue(
-                              "due",
-                              total - discountAmount - newValue
-                            );
+                            field.onChange(newValue); // let RHF update state
+                            form.setValue("due", netTotal - newValue);
                           }}
                         />
                       </FormControl>
@@ -628,6 +584,7 @@ export const CreateSellForm = ({ products }: CreateSellFormProps) => {
                   )}
                 />
               </div>
+
               <div className="flex flex-col gap-y-4">
                 <FormField
                   name="due"

@@ -34,6 +34,12 @@ export const createSellSchema = z
               imei: z.string(),
             })
           ),
+          availableImeis: z.array(
+            z.object({
+              id: z.number(),
+              imei: z.string(),
+            })
+          ),
         })
       )
       .min(1, { message: "At least one product is required" }),
