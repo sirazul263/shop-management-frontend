@@ -24,13 +24,13 @@ export const ProductFormWrapper = ({
   const isLoading = isLoadingCategories || isLoadingBrands;
 
   const categoryOptions = categories?.data.map((category: Category) => ({
-    id: category.id,
+    id: category.id.toString(),
     name: category.name,
     imageUrl: category.image,
   }));
 
   const brandOptions = brands?.data.map((brand: Brand) => ({
-    id: brand.id,
+    id: brand.id.toString(),
     name: brand.name,
     imageUrl: brand.image,
   }));

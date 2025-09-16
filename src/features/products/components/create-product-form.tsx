@@ -27,7 +27,6 @@ import { useRouter } from "next/navigation";
 import { AlertTriangle, ImageIcon } from "lucide-react";
 import { useCreateProduct } from "../api/use-create-product";
 import { createProductSchema } from "../schemas";
-import { DefaultAvatar } from "@/components/default-avatar";
 import { uploadImage } from "@/hooks/upload-image";
 import { getErrorMessage } from "@/lib/utils";
 import Image from "next/image";
@@ -35,6 +34,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useStoreId } from "@/hooks/use-store-id";
 import { AxiosError } from "axios";
+import { SearchableSelect } from "@/components/searchable-select-option";
 
 interface CreateProductFormPros {
   categoryOptions: {
@@ -126,34 +126,19 @@ export const CreateProductForm = ({
                 <FormField
                   name="categoryId"
                   control={form.control}
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem>
                       <FormLabel>
-                        Category <span className="text-red-700">*</span>{" "}
+                        Category <span className="text-red-700">*</span>
                       </FormLabel>
-                      <Select
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categoryOptions.map((option) => (
-                            <SelectItem key={option.id} value={`${option.id}`}>
-                              <div className="flex items-center gap-x-2">
-                                <DefaultAvatar
-                                  className="size-6"
-                                  name={option.name}
-                                />
-                                {option.name}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <SearchableSelect
+                          name="categoryId"
+                          control={form.control}
+                          options={categoryOptions}
+                          placeholder="Select category..."
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -163,39 +148,25 @@ export const CreateProductForm = ({
                 <FormField
                   name="brandId"
                   control={form.control}
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem>
                       <FormLabel>
-                        Brand <span className="text-red-700">*</span>{" "}
+                        Brand <span className="text-red-700">*</span>
                       </FormLabel>
-                      <Select
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select brand" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {brandOptions.map((option) => (
-                            <SelectItem key={option.id} value={`${option.id}`}>
-                              <div className="flex items-center gap-x-2">
-                                <DefaultAvatar
-                                  className="size-6"
-                                  name={option.name}
-                                />
-                                {option.name}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <SearchableSelect
+                          name="brandId"
+                          control={form.control}
+                          options={brandOptions}
+                          placeholder="Select brand..."
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+
               <div className="flex flex-col gap-y-4">
                 <FormField
                   name="name"
