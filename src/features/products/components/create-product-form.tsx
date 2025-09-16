@@ -83,6 +83,7 @@ export const CreateProductForm = ({
       }
       setUploading(false);
     }
+
     const finalValue = {
       store_id: storeId,
       category_id: values.categoryId,
