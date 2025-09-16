@@ -1,8 +1,6 @@
-"use client";
-
+import { Control, Controller, FieldValues, Path } from "react-hook-form";
 import ReactSelect, { StylesConfig } from "react-select";
 import { DefaultAvatar } from "@/components/default-avatar";
-import { Control, Controller } from "react-hook-form";
 
 interface SearchableSelectOption {
   id: string;
@@ -10,34 +8,31 @@ interface SearchableSelectOption {
   imageUrl?: string;
 }
 
-interface SearchableSelectProps {
-  name: string;
-  control: Control<any>;
+interface SearchableSelectProps<TFormValues extends FieldValues> {
+  name: Path<TFormValues>; // <- properly typed
+  control: Control<TFormValues>;
   options: SearchableSelectOption[];
   placeholder?: string;
   isClearable?: boolean;
 }
 
-export const SearchableSelect = ({
+export const SearchableSelect = <TFormValues extends FieldValues>({
   name,
   control,
   options,
   placeholder = "Select...",
   isClearable = true,
-}: SearchableSelectProps) => {
+}: SearchableSelectProps<TFormValues>) => {
   const customStyles: StylesConfig<SearchableSelectOption, false> = {
     control: (provided, state) => ({
       ...provided,
       borderRadius: "0.5rem",
-      borderColor: state.isFocused ? "#4f46e5" : "#d1d5db", // focus vs normal
+      borderColor: state.isFocused ? "#4f46e5" : "#d1d5db",
       boxShadow: state.isFocused ? "0 0 0 1px #4f46e5" : "none",
-      minHeight: "3.1rem",
+      minHeight: "2.5rem",
       padding: "0 0.25rem",
     }),
-    menu: (provided) => ({
-      ...provided,
-      zIndex: 50,
-    }),
+    menu: (provided) => ({ ...provided, zIndex: 50 }),
     option: (provided, state) => ({
       ...provided,
       backgroundColor: state.isFocused ? "#eef2ff" : "#fff",
@@ -54,19 +49,13 @@ export const SearchableSelect = ({
       gap: "0.5rem",
       color: "#111827",
     }),
-    placeholder: (provided) => ({
-      ...provided,
-      color: "#6b7280",
-    }),
+    placeholder: (provided) => ({ ...provided, color: "#6b7280" }),
     clearIndicator: (provided) => ({
       ...provided,
       padding: "0 0.25rem",
       cursor: "pointer",
     }),
-    dropdownIndicator: (provided) => ({
-      ...provided,
-      padding: "0 0.25rem",
-    }),
+    dropdownIndicator: (provided) => ({ ...provided, padding: "0 0.25rem" }),
   };
 
   return (

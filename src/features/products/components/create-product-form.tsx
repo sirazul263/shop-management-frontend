@@ -14,14 +14,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, ImageIcon } from "lucide-react";
